@@ -1,0 +1,193 @@
+/* ==========================================================================
+   DataPilot — reports.css
+   Cleaning history + individual report pages.
+   Uses the same tokens as base.css/cleaner.css (paper/ink/line/flag/fix) —
+   no separate design vocabulary.
+   ========================================================================== */
+
+.history-section{ padding: var(--space-7) 0 var(--space-9); }
+
+.history-card{
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.history-card + .history-card{ margin-top: var(--space-5); }
+
+.history-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+.history-header h2{ margin: 0 0 4px; }
+.history-header p{
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   Table
+   ========================================================================== */
+.table-wrapper{ width: 100%; overflow-x: auto; }
+
+.history-table{
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+.history-table th{
+  padding: 14px 18px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-mono);
+  background: var(--paper-dim);
+  border-bottom: 1px solid var(--line);
+}
+.history-table td{
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.history-table tbody tr:last-child td{ border-bottom: none; }
+.history-table tbody tr{ transition: background 0.15s ease; }
+.history-table tbody tr:hover{ background: var(--paper-dim); }
+
+.dataset-name{
+  font-weight: 600;
+  color: var(--ink);
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Status pills — reuses the flag/fix diff language from the rest of the app
+   ========================================================================== */
+.status{
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.status-completed{ background: var(--fix-bg); color: var(--fix); }
+.status-processing{ background: var(--flag-bg); color: var(--flag); }
+.status-pending{ background: var(--paper-dim); color: var(--accent-mono); }
+.status-failed{ background: var(--flag-bg); color: var(--flag); }
+
+/* ==========================================================================
+   Date column
+   ========================================================================== */
+.date{ display: block; font-weight: 500; }
+.history-table td small{
+  display: block;
+  margin-top: 3px;
+  color: var(--accent-mono);
+  font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   View / back buttons
+   ========================================================================== */
+.view-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--white);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.view-btn:hover{
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.back-link{ margin-bottom: var(--space-5); }
+
+/* ==========================================================================
+   Report page — job meta, stat grid inside a card, completion note
+   ========================================================================== */
+.job-meta{ display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); }
+.report-stats{ padding: var(--space-5); }
+
+.completed-note{
+  margin-top: var(--space-4);
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   Empty state
+   ========================================================================== */
+.empty-history{
+  text-align: center;
+  padding: var(--space-9) var(--space-5);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.empty-icon{
+  width: 48px; height: 48px;
+  margin: 0 auto var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--paper-dim);
+  color: var(--accent-mono);
+  font-size: 1.4rem;
+}
+.empty-history h2{ margin-bottom: var(--space-2); }
+.empty-history p{
+  margin: 0 auto var(--space-5);
+  max-width: 480px;
+  color: var(--ink-soft);
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+.pagination{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.pagination a{
+  padding: 8px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--white);
+}
+.pagination a:hover{ background: var(--paper-dim); }
+
+@media (max-width: 700px){
+  .history-header{ padding: var(--space-4); flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  .history-table th, .history-table td{ padding: 12px; }
+  .job-meta{ flex-direction: column; align-items: flex-start; }
+}

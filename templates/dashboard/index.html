@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}DataPilot — clean CSVs, not by hand{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow">Row-level CSV cleaning</span>
+      <h1>Your CSV has problems. It won't after this.</h1>
+      <p>Upload a file, DataPilot finds the duplicates, blanks, and broken formatting, cleans it, and shows you exactly what changed — before you download a single row.</p>
+      <div class="hero-actions">
+        <a href="{% url 'cleaner:upload' %}" class="btn">Upload a CSV</a>
+        <span class="hint">.csv · up to 50MB</span>
+      </div>
+    </div>
+
+    <div class="hero-demo" aria-hidden="true">
+      <div class="demo-frame">
+        <div class="demo-frame-bar">
+          <span class="filename">customers_export.csv</span>
+          <span id="demo-status" data-state="scanning">4 issues found</span>
+        </div>
+        <table class="demo-table" id="demo-table">
+          <thead>
+            <tr><th>id</th><th>email</th><th>signup_date</th><th>orders</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1002</td>
+              <td>r.aimee@mail.com</td>
+              <td data-role="date-cell">03/14/2026</td>
+              <td>3</td>
+            </tr>
+            <tr data-role="dupe-row" class="is-dupe">
+              <td class="is-dupe">1002</td>
+              <td class="is-dupe">r.aimee@mail.com</td>
+              <td class="is-dupe">03/14/2026</td>
+              <td class="is-dupe">3</td>
+            </tr>
+            <tr>
+              <td>1003</td>
+              <td>k.uwase@mail.com</td>
+              <td>03/15/2026</td>
+              <td data-role="null-cell">NULL</td>
+            </tr>
+            <tr>
+              <td>1004</td>
+              <td>j.mugisha@mail.com</td>
+              <td>03/16/2026</td>
+              <td data-role="null-cell">NULL</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how">
+  <div class="wrap">
+    <div class="how-head">
+      <span class="eyebrow">How it works</span>
+      <h2>Three steps, no spreadsheet gymnastics</h2>
+    </div>
+    <div class="step-ledger">
+      <div class="step-row">
+        <span class="step-num">01</span>
+        <span class="step-title">Upload</span>
+        <span class="step-desc">Drop in a CSV. DataPilot reads it with Pandas and profiles every column — types, nulls, duplicates, formatting drift.</span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">02</span>
+        <span class="step-title">Review the findings</span>
+        <span class="step-desc">See exactly what's wrong before anything changes: duplicate rows, missing values, inconsistent dates, mismatched types.</span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">03</span>
+        <span class="step-title">Download, cleaned</span>
+        <span class="step-desc">Preview the cleaned table side-by-side with the original, then download the fixed CSV.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="recent">
+  <div class="wrap">
+    <div class="recent-head">
+      <span class="eyebrow">Recent jobs</span>
+      {% if recent_jobs %}<a href="{% url 'reports:history' %}">View all history →</a>{% endif %}
+    </div>
+
+    {% if recent_jobs %}
+      <div class="job-row job-head">
+        <span>File</span><span>Rows</span><span>Issues fixed</span><span>Date</span><span></span>
+      </div>
+      {% for job in recent_jobs %}
+      <div class="job-row">
+        <span class="job-name">{{ job.filename }}</span>
+        <span>{{ job.row_count }}</span>
+        <span class="pill pill-fix">{{ job.issues_fixed }} fixed</span>
+        <span>{{ job.created_at|date:"M d" }}</span>
+        <a href="{% url 'reports:report' job.id %}" class="job-link">View →</a>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <p>No jobs yet. Upload your first CSV and DataPilot will start a history you can come back to.</p>
+        <a href="{% url 'cleaner:upload' %}" class="btn btn-outline">Upload a CSV</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'javascript/dashboard.js' %}"></script>{% endblock %}

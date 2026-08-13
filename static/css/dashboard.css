@@ -1,0 +1,179 @@
+/* ==========================================================================
+   DataPilot — dashboard.css
+   Landing page: hero with a live "before → after" cleaning demo,
+   how-it-works ledger, and recent-jobs strip.
+   ========================================================================== */
+
+.hero{
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 100% 42px,
+    var(--paper);
+  background-position: 0 0;
+}
+.hero .wrap{
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: var(--space-8);
+  align-items: center;
+  padding-top: var(--space-9);
+  padding-bottom: var(--space-9);
+}
+
+.hero-copy .eyebrow{ margin-bottom: var(--space-4); }
+.hero-copy h1{ max-width: 15ch; }
+.hero-copy p{ max-width: 42ch; font-size: 1.05rem; }
+.hero-actions{
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  align-items: center;
+}
+.hero-actions .hint{
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-mono);
+}
+
+/* --- live demo table --- */
+.demo-frame{
+  background: var(--white);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  box-shadow: 0 24px 48px -24px rgba(23,26,31,0.18);
+  overflow: hidden;
+}
+.demo-frame-bar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent-mono);
+}
+.demo-frame-bar .filename::before{ content: "▤ "; }
+#demo-status{
+  font-weight: 600;
+  transition: color .3s ease;
+}
+#demo-status[data-state="scanning"]{ color: var(--flag); }
+#demo-status[data-state="clean"]{ color: var(--fix); }
+
+table.demo-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+.demo-table th{
+  text-align: left;
+  font-weight: 500;
+  color: var(--accent-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-dim);
+}
+.demo-table td{
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  white-space: nowrap;
+  transition: color .35s ease, text-decoration-color .35s ease, background .35s ease;
+}
+.demo-table tr:last-child td{ border-bottom: none; }
+
+.demo-table td.is-dupe{
+  text-decoration: line-through;
+  text-decoration-color: var(--flag);
+  color: var(--line-strong);
+}
+.demo-table td.is-null{ color: var(--flag); }
+.demo-table td.is-fixed{
+  color: var(--fix);
+  background: var(--fix-bg);
+}
+.demo-table tr.row-removed td{
+  color: var(--line-strong);
+  text-decoration: line-through;
+  text-decoration-color: var(--flag);
+}
+
+/* ==========================================================================
+   How it works — ledger list
+   ========================================================================== */
+.how{ padding: var(--space-9) 0; }
+.how-head{ max-width: 48ch; margin-bottom: var(--space-6); }
+
+.step-ledger{ border-top: 1px solid var(--line); }
+.step-row{
+  display: grid;
+  grid-template-columns: 64px 1fr 1fr;
+  gap: var(--space-5);
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--line);
+  align-items: baseline;
+}
+.step-num{
+  font-family: var(--font-mono);
+  color: var(--flag);
+  font-size: 0.9rem;
+}
+.step-title{ font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
+.step-desc{ color: var(--ink-soft); font-size: 0.95rem; }
+
+@media (max-width: 900px){
+  .hero .wrap{ grid-template-columns: 1fr; padding-top: var(--space-7); padding-bottom: var(--space-7); }
+  .step-row{ grid-template-columns: 40px 1fr; }
+  .step-row .step-desc{ grid-column: 2; }
+}
+
+/* ==========================================================================
+   Recent jobs strip
+   ========================================================================== */
+.recent{ padding-bottom: var(--space-9); }
+.recent-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-4);
+}
+.recent-head a{ font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft); text-decoration: none; }
+.recent-head a:hover{ color: var(--flag); }
+
+.job-row{
+  display: grid;
+  grid-template-columns: 1fr 120px 120px 100px 90px;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.job-row.job-head{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-mono);
+  border-bottom: 1px solid var(--line-strong);
+}
+.job-row .job-name{ font-family: var(--font-mono); }
+.job-row a.job-link{ text-decoration: none; color: var(--ink-soft); font-family: var(--font-mono); font-size: 0.82rem; }
+.job-row a.job-link:hover{ color: var(--flag); }
+
+.empty-state{
+  padding: var(--space-7) 0;
+  text-align: left;
+  border-top: 1px solid var(--line);
+}
+.empty-state p{ margin-bottom: var(--space-4); }
+
+@media (max-width: 720px){
+  .job-row{ grid-template-columns: 1fr auto; }
+  .job-row span:not(.job-name):not(.job-link){ display: none; }
+}

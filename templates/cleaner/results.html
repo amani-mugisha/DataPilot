@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Scan Results — DataPilot{% endblock %}
+{% block nav_upload %}active{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/cleaner.css' %}">{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div class="wrap">
+    <span class="eyebrow">Step 2 of 3</span>
+    <h1>Scan Results</h1>
+    <p>DataPilot analyzed your file. Nothing has been changed yet — review what was found, then run the clean.</p>
+  </div>
+</div>
+
+<section class="upload-section">
+  <div class="wrap">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span>Rows</span>
+        <strong>{{ rows }}</strong>
+      </div>
+      <div class="stat-card">
+        <span>Columns</span>
+        <strong>{{ columns }}</strong>
+      </div>
+      <div class="stat-card">
+        <span>Missing values</span>
+        <strong>{{ missing_values }}</strong>
+      </div>
+      <div class="stat-card">
+        <span>Duplicate rows</span>
+        <strong>{{ duplicate_rows }}</strong>
+      </div>
+    </div>
+
+    <div class="upload-actions">
+      <form method="post" action="{% url 'cleaner:clean' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-fix">Clean file →</button>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

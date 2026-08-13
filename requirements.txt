@@ -1,0 +1,13 @@
+asgiref==3.12.1
+charset-normalizer==3.4.9
+Django==5.2.17
+numpy==2.2.6
+pandas==2.3.3
+pillow==12.3.0
+python-dateutil==2.9.0.post0
+pytz==2026.3.post1
+reportlab==5.0.0
+six==1.17.0
+sqlparse==0.5.5
+typing_extensions==4.16.0
+tzdata==2026.3

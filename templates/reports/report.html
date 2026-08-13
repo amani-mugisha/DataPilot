@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cleaning Report — DataPilot{% endblock %}
+{% block nav_history %}active{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/reports.css' %}">{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div class="wrap">
+    <span class="eyebrow">Cleaning Report</span>
+    <h1>{% if job.dataset %}{{ job.dataset.name }}{% else %}Cleaning Job #{{ job.id }}{% endif %}</h1>
+    <p>Detailed results from this DataPilot cleaning operation.</p>
+  </div>
+</div>
+
+<section class="history-section">
+  <div class="wrap">
+
+    <div class="back-link">
+      <a href="{% url 'reports:history' %}" class="view-btn">← Back to history</a>
+    </div>
+
+    <div class="history-card">
+      <div class="history-header job-meta">
+        <div>
+          <h2>Cleaning details</h2>
+          <p>Job #{{ job.id }} · {{ job.created_at|date:"M d, Y H:i" }}</p>
+        </div>
+        <span class="status status-{{ job.status }}">{{ job.get_status_display }}</span>
+      </div>
+
+      <div class="stats-grid report-stats">
+        <div class="stat-card">
+          <span>Rows processed</span>
+          <strong>{{ summary.row_count }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Issues found</span>
+          <strong>{{ summary.issues_found }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Issues fixed</span>
+          <strong>{{ summary.issues_fixed }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Rows removed</span>
+          <strong>{{ summary.rows_removed }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-card">
+      <div class="history-header">
+        <div>
+          <h2>Cleaning findings</h2>
+          <p>Issues detected during the cleaning process.</p>
+        </div>
+      </div>
+
+      {% if findings %}
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th scope="col">Type</th>
+              <th scope="col">Column</th>
+              <th scope="col">Row</th>
+              <th scope="col">Description</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for finding in findings %}
+            <tr>
+              <td>{{ finding.get_finding_type_display }}</td>
+              <td>{{ finding.column_name|default:"—" }}</td>
+              <td>{{ finding.row_number|default:"—" }}</td>
+              <td>{{ finding.description }}</td>
+              <td>
+                {% if finding.fixed %}
+                  <span class="status status-completed">Fixed</span>
+                {% else %}
+                  <span class="status status-pending">Not fixed</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-history">
+        <h2>No detailed findings</h2>
+        <p>No individual cleaning findings were recorded for this job.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if download_url %}
+    <div class="download-section">
+      <h2>Cleaned dataset</h2>
+      <p>Download the cleaned CSV generated from this cleaning job.</p>
+      <div class="download-actions">
+        <a href="{{ download_url }}" class="btn btn-fix" download>↓ Download cleaned CSV</a>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if job.completed_at %}
+    <p class="completed-note">Completed {{ job.completed_at|date:"F d, Y" }} at {{ job.completed_at|date:"H:i" }}</p>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

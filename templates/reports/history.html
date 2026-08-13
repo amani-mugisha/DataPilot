@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cleaning History — DataPilot{% endblock %}
+{% block nav_history %}active{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/reports.css' %}">{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div class="wrap">
+    <span class="eyebrow">DataPilot</span>
+    <h1>Cleaning History</h1>
+    <p>View your previous CSV cleaning jobs, results, and generated files.</p>
+  </div>
+</div>
+
+<section class="history-section">
+  <div class="wrap">
+
+    {% if jobs %}
+    <div class="history-card">
+      <div class="history-header">
+        <div>
+          <h2>Previous cleaning jobs</h2>
+          <p>{{ jobs.paginator.count }} cleaning job{{ jobs.paginator.count|pluralize }}</p>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th scope="col">Dataset</th>
+              <th scope="col">Rows</th>
+              <th scope="col">Issues</th>
+              <th scope="col">Fixed</th>
+              <th scope="col">Removed</th>
+              <th scope="col">Status</th>
+              <th scope="col">Date</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in jobs %}
+            <tr>
+              <td>
+                <div class="dataset-name">
+                  {% if job.dataset %}{{ job.dataset.name }}{% else %}Dataset #{{ job.id }}{% endif %}
+                </div>
+              </td>
+              <td>{{ job.row_count }}</td>
+              <td>{{ job.issues_found }}</td>
+              <td>{{ job.issues_fixed }}</td>
+              <td>{{ job.rows_removed }}</td>
+              <td><span class="status status-{{ job.status }}">{{ job.get_status_display }}</span></td>
+              <td>
+                <span class="date">{{ job.created_at|date:"M d, Y" }}</span>
+                <small>{{ job.created_at|date:"H:i" }}</small>
+              </td>
+              <td><a href="{% url 'reports:report' job.id %}" class="view-btn">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="empty-history">
+      <div class="empty-icon">—</div>
+      <h2>No cleaning history yet</h2>
+      <p>Once you clean a CSV file, your cleaning jobs will appear here.</p>
+      <a href="{% url 'cleaner:upload' %}" class="btn btn-fix">Clean your first file</a>
+    </div>
+    {% endif %}
+
+    {% if jobs.paginator.num_pages > 1 %}
+    <div class="pagination">
+      {% if jobs.has_previous %}<a href="?page={{ jobs.previous_page_number }}">Previous</a>{% endif %}
+      <span>Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}</span>
+      {% if jobs.has_next %}<a href="?page={{ jobs.next_page_number }}">Next</a>{% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

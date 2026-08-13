@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cleaning Complete — DataPilot{% endblock %}
+{% block nav_upload %}active{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/cleaner.css' %}">{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div class="wrap">
+    <span class="eyebrow">Step 3 of 3</span>
+    <h1>Cleaning Complete</h1>
+    <p>DataPilot cleaned your CSV and generated both the cleaned dataset and a detailed report.</p>
+  </div>
+</div>
+
+<section class="upload-section">
+  <div class="wrap">
+
+    <div class="card" style="padding: var(--space-5);">
+      <h2>Cleaning Summary</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span>Original rows</span>
+          <strong>{{ statistics.original_rows }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Final rows</span>
+          <strong>{{ statistics.final_rows }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Original columns</span>
+          <strong>{{ statistics.original_columns }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Missing values</span>
+          <strong>{{ statistics.missing_values }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Duplicates removed</span>
+          <strong>{{ statistics.duplicates_removed }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Rows removed</span>
+          <strong>{{ statistics.rows_removed }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="download-section">
+      <h2>Your files are ready</h2>
+      <p>Download the cleaned dataset or the PDF report containing the cleaning summary.</p>
+      <div class="download-actions">
+        <a href="{% url 'cleaner:download_csv' %}" class="btn btn-fix">↓ Download cleaned CSV</a>
+        <a href="{% url 'cleaner:download_pdf' %}" class="btn btn-outline">↓ Download PDF report</a>
+      </div>
+    </div>
+
+    <div class="upload-actions">
+      <a href="{% url 'cleaner:upload' %}" class="btn btn-outline">Clean another file</a>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

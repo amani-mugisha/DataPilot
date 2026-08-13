@@ -1,0 +1,294 @@
+/* ==========================================================================
+   DataPilot — base.css
+   Design tokens + reset + shared layout primitives.
+   Visual language: a spreadsheet ledger. Hairline rows, mono data values,
+   and a two-color diff system (flag = found issue, fix = cleaned).
+   ========================================================================== */
+
+:root{
+  /* --- palette --- */
+  --paper:      #F7F7F4;
+  --paper-dim:  #EFEFEB;
+  --ink:        #171A1F;
+  --ink-soft:   #4B515C;
+  --line:       #DEE1E4;
+  --line-strong:#C4C9CE;
+
+  --flag:       #C7452F;   /* problems found */
+  --flag-bg:    #FBEAE6;
+  --fix:        #1E7A52;   /* problems resolved */
+  --fix-bg:     #E8F3EC;
+  --accent-mono:#5C6470;
+
+  --white:      #FFFFFF;
+
+  /* --- type --- */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* --- scale --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  --max-width: 1120px;
+}
+
+*, *::before, *::after{ box-sizing: border-box; }
+
+html{ scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  *, *::before, *::after{
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body{
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4{
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 var(--space-3);
+  letter-spacing: -0.01em;
+}
+
+h1{ font-size: clamp(2rem, 1.5rem + 2vw, 3.25rem); }
+h2{ font-size: clamp(1.5rem, 1.3rem + 1vw, 2.1rem); }
+h3{ font-size: 1.25rem; }
+
+p{ margin: 0 0 var(--space-4); color: var(--ink-soft); }
+
+a{ color: inherit; }
+
+code, .mono, .data-value{
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+.wrap{
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+
+/* --- eyebrow / column-header labels: earns the spreadsheet motif --- */
+.eyebrow{
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.eyebrow::before{
+  content: "";
+  width: 6px; height: 6px;
+  background: var(--flag);
+  display: inline-block;
+}
+
+/* ==========================================================================
+   Nav
+   ========================================================================== */
+.site-nav{
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+.site-nav .wrap{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+}
+.brand{
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.brand .brand-mark{
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--fix);
+  border: 1px solid var(--fix);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+}
+.nav-links{
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  list-style: none;
+  margin: 0; padding: 0;
+}
+.nav-links a{
+  text-decoration: none;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 3px;
+  transition: color .15s ease, border-color .15s ease;
+}
+.nav-links a:hover{
+  color: var(--ink);
+  border-bottom-color: var(--flag);
+}
+.nav-links a.active{
+  color: var(--flag);
+  border-bottom-color: var(--flag);
+}
+.nav-cta{
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: var(--ink);
+  color: var(--paper) !important;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+.nav-cta:hover{ background: #2A2F38; }
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .12s ease, background .15s ease;
+}
+.btn:hover{ background: #2A2F38; }
+.btn:active{ transform: translateY(1px); }
+.btn:focus-visible{ outline: 2px solid var(--flag); outline-offset: 2px; }
+
+.btn-outline{
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.btn-outline:hover{ background: var(--paper-dim); border-color: var(--ink); }
+
+.btn-fix{
+  background: var(--fix);
+  border-color: var(--fix);
+}
+.btn-fix:hover{ background: #17603F; }
+
+.btn-block{ width: 100%; }
+
+/* ==========================================================================
+   Cards / ledger rows
+   ========================================================================== */
+.card{
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.ledger{
+  border-top: 1px solid var(--line);
+}
+.ledger-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+/* --- pills for flag/fix states --- */
+.pill{
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pill-flag{ background: var(--flag-bg); color: var(--flag); }
+.pill-fix{ background: var(--fix-bg); color: var(--fix); }
+.pill-neutral{ background: var(--paper-dim); color: var(--ink-soft); }
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.site-footer{
+  border-top: 1px solid var(--line);
+  margin-top: var(--space-9);
+  padding: var(--space-6) 0;
+}
+.site-footer .wrap{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent-mono);
+}
+
+/* ==========================================================================
+   Django messages
+   ========================================================================== */
+.messages{ list-style: none; margin: var(--space-5) 0 0; padding: 0; }
+.messages li{
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--line);
+  background: var(--paper-dim);
+}
+.messages li.error{ background: var(--flag-bg); color: var(--flag); border-color: var(--flag); }
+.messages li.success{ background: var(--fix-bg); color: var(--fix); border-color: var(--fix); }
+
+@media (max-width: 720px){
+  .nav-links{ display: none; }
+  .site-footer .wrap{ flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+}
