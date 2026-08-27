@@ -21,7 +21,7 @@ INSTALLED_APPS = [
     'apps.dashboard.apps.DashboardConfig',
     'apps.cleaner.apps.CleanerConfig',
     'apps.reports.apps.ReportsConfig',
-    "apps.datasets",
+    "apps.datasets.apps.DatasetsConfig",
 ]
 
 MIDDLEWARE = [
