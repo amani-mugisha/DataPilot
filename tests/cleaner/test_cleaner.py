@@ -68,26 +68,6 @@ class CleanerTests(SimpleTestCase):
             1,
         )
 
-    def test_removes_completely_empty_rows(self):
-        dataframe = pd.DataFrame(
-            {
-                "name": ["Amani", None, "John"],
-                "age": [20, None, 25],
-            }
-        )
-
-        cleaned, statistics = clean_dataframe(dataframe)
-
-        self.assertEqual(
-            len(cleaned),
-            2,
-        )
-
-        self.assertEqual(
-            statistics["empty_rows_removed"],
-            1,
-        )
-
     def test_normalizes_missing_markers(self):
         dataframe = pd.DataFrame(
             {
@@ -297,4 +277,55 @@ class CleanerTests(SimpleTestCase):
         self.assertEqual(
             statistics["rows_removed"],
             2,
+        )
+
+    def test_strips_whitespace_before_missing_marker_detection(self):
+        dataframe = pd.DataFrame(
+            {
+                "name": [
+                    "Amani",
+                    "   ",
+                    "  N/A  ",
+                ],
+            }
+        )
+
+        cleaned, statistics = clean_dataframe(dataframe)
+
+        self.assertEqual(
+            statistics["missing_values"],
+            2,
+        )
+
+        self.assertEqual(
+            statistics["empty_rows_removed"],
+            2,
+        )
+
+        self.assertEqual(
+            cleaned["name"].tolist(),
+            [
+                "Amani",
+            ],
+        )
+
+    def test_counts_empty_rows_as_fixed_issues(self):
+        dataframe = pd.DataFrame(
+            {
+                "name": [
+                    "Amani",
+                    None,
+                ],
+                "age": [
+                    20,
+                    None,
+                ],
+            }
+        )
+
+        _, statistics = clean_dataframe(dataframe)
+
+        self.assertEqual(
+            statistics["empty_rows_removed"],
+            1,
         )

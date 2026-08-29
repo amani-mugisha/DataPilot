@@ -3,62 +3,243 @@
 
 {% block title %}Cleaning Complete — DataPilot{% endblock %}
 {% block nav_upload %}active{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/cleaner.css' %}">{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cleaner.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <div class="page-head">
   <div class="wrap">
     <span class="eyebrow">Step 3 of 3</span>
-    <h1>Cleaning Complete</h1>
-    <p>DataPilot cleaned your CSV and generated both the cleaned dataset and a detailed report.</p>
+
+    <h1>Cleaning complete</h1>
+
+    <p>
+      DataPilot finished processing your dataset. Your cleaned data is ready
+      in CSV and Excel formats, with a detailed PDF report.
+    </p>
   </div>
 </div>
+
 
 <section class="upload-section">
   <div class="wrap">
 
-    <div class="card" style="padding: var(--space-5);">
-      <h2>Cleaning Summary</h2>
+    <!-- ================================================================
+         COMPLETION STATUS
+         ================================================================ -->
+
+    <div class="completion-banner">
+      <div class="completion-mark" aria-hidden="true">✓</div>
+
+      <div>
+        <span class="completion-label">PROCESSING COMPLETE</span>
+
+        <strong>
+          Your dataset has been cleaned successfully.
+        </strong>
+
+        <p>
+          The original uploaded file remains unchanged.
+        </p>
+      </div>
+    </div>
+
+
+    <!-- ================================================================
+         CLEANING SUMMARY
+         ================================================================ -->
+
+    <section class="result-block">
+
+      <div class="section-heading">
+        <span class="eyebrow">Cleaning summary</span>
+
+        <h2>What changed</h2>
+
+        <p>
+          A quick overview of the transformations performed on your dataset.
+        </p>
+      </div>
+
+
       <div class="stats-grid">
+
         <div class="stat-card">
           <span>Original rows</span>
           <strong>{{ statistics.original_rows }}</strong>
         </div>
+
         <div class="stat-card">
           <span>Final rows</span>
           <strong>{{ statistics.final_rows }}</strong>
         </div>
+
         <div class="stat-card">
           <span>Original columns</span>
           <strong>{{ statistics.original_columns }}</strong>
         </div>
+
         <div class="stat-card">
           <span>Missing values</span>
           <strong>{{ statistics.missing_values }}</strong>
         </div>
-        <div class="stat-card">
+
+        <div class="stat-card stat-card-fix">
           <span>Duplicates removed</span>
           <strong>{{ statistics.duplicates_removed }}</strong>
         </div>
-        <div class="stat-card">
+
+        <div class="stat-card stat-card-fix">
           <span>Rows removed</span>
           <strong>{{ statistics.rows_removed }}</strong>
         </div>
-      </div>
-    </div>
 
-    <div class="download-section">
-      <h2>Your files are ready</h2>
-      <p>Download the cleaned dataset or the PDF report containing the cleaning summary.</p>
-      <div class="download-actions">
-        <a href="{% url 'cleaner:download_csv' %}" class="btn btn-fix">↓ Download cleaned CSV</a>
-        <a href="{% url 'cleaner:download_pdf' %}" class="btn btn-outline">↓ Download PDF report</a>
       </div>
-    </div>
 
-    <div class="upload-actions">
-      <a href="{% url 'cleaner:upload' %}" class="btn btn-outline">Clean another file</a>
+    </section>
+
+
+    <!-- ================================================================
+         DOWNLOADS
+         ================================================================ -->
+
+    <section class="download-section">
+
+      <div class="section-heading">
+        <span class="eyebrow">Export</span>
+
+        <h2>Your files are ready</h2>
+
+        <p>
+          Choose the format you need. The cleaned dataset is available as
+          CSV or Excel, and the PDF contains the processing report.
+        </p>
+      </div>
+
+
+      <div class="download-grid">
+
+        <!-- CSV -->
+
+        <div class="download-card">
+
+          <div class="download-card-top">
+            <span class="file-type">CSV</span>
+            <span class="file-status">READY</span>
+          </div>
+
+          <h3>Cleaned CSV</h3>
+
+          <p>
+            Lightweight and compatible with spreadsheets, databases,
+            scripts, and data-analysis tools.
+          </p>
+
+          {% if csv_filename %}
+            <div class="file-name">
+              {{ csv_filename }}
+            </div>
+          {% endif %}
+
+          <a
+            href="{% url 'cleaner:download_csv' %}"
+            class="btn btn-fix btn-block"
+          >
+            Download CSV →
+          </a>
+
+        </div>
+
+
+        <!-- Excel -->
+
+        <div class="download-card">
+
+          <div class="download-card-top">
+            <span class="file-type">XLSX</span>
+            <span class="file-status">READY</span>
+          </div>
+
+          <h3>Cleaned Excel</h3>
+
+          <p>
+            Ready to open in Microsoft Excel and other spreadsheet
+            applications.
+          </p>
+
+          {% if xlsx_filename %}
+            <div class="file-name">
+              {{ xlsx_filename }}
+            </div>
+          {% endif %}
+
+          <a
+            href="{% url 'cleaner:download_excel' %}"
+            class="btn btn-outline btn-block"
+          >
+            Download Excel →
+          </a>
+
+        </div>
+
+
+        <!-- PDF -->
+
+        <div class="download-card">
+
+          <div class="download-card-top">
+            <span class="file-type">PDF</span>
+            <span class="file-status">READY</span>
+          </div>
+
+          <h3>Cleaning report</h3>
+
+          <p>
+            A detailed PDF summary of the dataset and the cleaning operation.
+          </p>
+
+          {% if pdf_filename %}
+            <div class="file-name">
+              {{ pdf_filename }}
+            </div>
+          {% endif %}
+
+          <a
+            href="{% url 'cleaner:download_pdf' %}"
+            class="btn btn-outline btn-block"
+          >
+            Download report →
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================================================================
+         NEXT ACTION
+         ================================================================ -->
+
+    <div class="result-footer">
+
+      <div>
+        <span class="eyebrow">Next dataset</span>
+
+        <strong>Ready to clean another file?</strong>
+      </div>
+
+      <a
+        href="{% url 'cleaner:upload' %}"
+        class="btn"
+      >
+        + New upload
+      </a>
+
     </div>
 
   </div>

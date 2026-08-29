@@ -1,11 +1,12 @@
+from ..formats import SUPPORTED_FORMATS
+
 from .file_detector import (
     DetectedFile,
-    SUPPORTED_FORMATS,
     detect_file,
 )
 
 __all__ = [
-    "DetectedFile",
     "SUPPORTED_FORMATS",
+    "DetectedFile",
     "detect_file",
 ]

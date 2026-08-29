@@ -8,7 +8,12 @@ from .base_writer import BaseWriter
 
 
 class CSVWriter(BaseWriter):
-    """Write a pandas DataFrame to CSV."""
+    """
+    Write a pandas DataFrame to CSV.
+
+    The writer owns filesystem preparation and delegates CSV
+    serialization to pandas.
+    """
 
     format_name = "csv"
 
@@ -18,6 +23,22 @@ class CSVWriter(BaseWriter):
         output_path: str | Path,
         **kwargs,
     ) -> Path:
+        """
+        Write a DataFrame to a CSV file.
+
+        Args:
+            dataframe:
+                DataFrame to export.
+
+            output_path:
+                Destination CSV path.
+
+            **kwargs:
+                Additional pandas ``DataFrame.to_csv`` options.
+
+        Returns:
+            Path to the generated CSV file.
+        """
 
         if dataframe is None:
             raise ValueError(
@@ -34,6 +55,7 @@ class CSVWriter(BaseWriter):
         dataframe.to_csv(
             path,
             index=False,
+            **kwargs,
         )
 
         return path

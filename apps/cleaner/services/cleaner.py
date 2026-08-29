@@ -29,19 +29,14 @@ def clean_dataframe(
     cleaned_df = df.copy()
 
     cleaned_df = _standardize_column_names(cleaned_df)
+    cleaned_df = _strip_text_columns(cleaned_df)
     cleaned_df = _normalize_missing_markers(cleaned_df)
 
     missing_before = _count_missing_values(cleaned_df)
 
-    cleaned_df, empty_rows_removed = _drop_empty_rows(
-        cleaned_df
-    )
+    cleaned_df, empty_rows_removed = _drop_empty_rows(cleaned_df)
 
-    cleaned_df, duplicate_rows = _drop_duplicate_rows(
-        cleaned_df
-    )
-
-    cleaned_df = _strip_text_columns(cleaned_df)
+    cleaned_df, duplicate_rows = _drop_duplicate_rows(cleaned_df)
 
     missing_values = missing_before
 

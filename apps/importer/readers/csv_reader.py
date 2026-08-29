@@ -11,9 +11,6 @@ from .base_reader import BaseReader
 class CSVReader(BaseReader):
     """
     Reader responsible for loading CSV files into pandas DataFrames.
-
-    CSV-specific parsing belongs here so that the rest of DataPilot
-    does not need to know how CSV files are read.
     """
 
     format_name = "csv"
@@ -21,12 +18,15 @@ class CSVReader(BaseReader):
     def read(
         self,
         file_path: str | Path | BinaryIO,
+        *,
+        filename: str | None = None,
+        **kwargs,
     ) -> pd.DataFrame:
         """
         Read a CSV file into a DataFrame.
 
-        Raises:
-            ValueError: If the CSV cannot be read.
+        Additional pandas read_csv options may be supplied through
+        kwargs when explicitly supported by the importer layer.
         """
 
         if file_path is None:
@@ -35,7 +35,10 @@ class CSVReader(BaseReader):
             )
 
         try:
-            dataframe = pd.read_csv(file_path)
+            dataframe = pd.read_csv(
+                file_path,
+                **kwargs,
+            )
 
         except pd.errors.EmptyDataError as exc:
             raise ValueError(

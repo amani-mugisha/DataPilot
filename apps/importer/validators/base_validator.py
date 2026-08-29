@@ -8,6 +8,8 @@ from typing import BinaryIO
 class BaseValidator(ABC):
     """Abstract interface for all DataPilot file validators."""
 
+    format_name: str
+
     @abstractmethod
     def validate(
         self,
@@ -15,5 +17,7 @@ class BaseValidator(ABC):
         filename: str | None = None,
         file_size: int | None = None,
     ) -> None:
-        """Validate a supported file before it is read."""
+        """
+        Validate a supported file before it is read.
+        """
         raise NotImplementedError

@@ -1,54 +1,114 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Upload a CSV — DataPilot{% endblock %}
+{% block title %}Upload a file — DataPilot{% endblock %}
 {% block nav_upload %}active{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/cleaner.css' %}">{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/cleaner.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <div class="page-head">
   <div class="wrap">
     <span class="eyebrow">Step 1 of 3</span>
-    <h1>Upload a CSV</h1>
-    <p>DataPilot scans for duplicate rows, missing values, invalid entries, and inconsistent formatting before it changes anything.</p>
+
+
+<h1>Upload a file</h1>
+
+<p>
+  DataPilot scans your dataset for duplicate rows, missing values,
+  invalid entries, and inconsistent formatting before making any changes.
+</p>
+
+
   </div>
 </div>
 
 <section class="upload-section">
   <div class="wrap">
 
-    {% if error %}
-      <ul class="messages">
-        <li class="error">{{ error }}</li>
-      </ul>
-    {% endif %}
 
-    <form method="post" enctype="multipart/form-data" action="{% url 'cleaner:upload' %}">
-      {% csrf_token %}
+{% if messages %}
+  <ul class="messages" aria-live="polite">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
 
-      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose or drop a CSV file">
-        <div class="dropzone-icon">⇧</div>
-        <h3>Drop your CSV here</h3>
-        <p class="dz-sub">or click to browse — .csv files up to 50MB</p>
-        <input type="file" name="file" id="csv-input" accept=".csv">
-        <div class="dz-filename" id="dz-filename"></div>
-      </div>
+{% if error %}
+  <ul class="messages" aria-live="polite">
+    <li class="error">{{ error }}</li>
+  </ul>
+{% endif %}
 
-      <div class="upload-rules">
-        <span class="rule">✓ .csv only</span>
-        <span class="rule">✓ up to 50MB</span>
-        <span class="rule">✓ nothing is changed until you confirm</span>
-      </div>
+<form
+  method="post"
+  enctype="multipart/form-data"
+  action="{% url 'cleaner:upload' %}"
+  id="upload-form"
+>
+  {% csrf_token %}
 
-      <div class="upload-actions">
-        <button type="submit" class="btn" id="upload-submit" disabled>Scan file →</button>
-      </div>
-    </form>
+  <div
+    class="dropzone"
+    id="dropzone"
+    tabindex="0"
+    role="button"
+    aria-label="Choose or drop a CSV or Excel file"
+  >
+    <div class="dropzone-icon" aria-hidden="true">⇧</div>
+
+    <h3>Drop your file here</h3>
+
+    <p class="dz-sub">
+      or click to browse — CSV or Excel files up to 50MB
+    </p>
+
+    <input
+      type="file"
+      name="file"
+      id="file-input"
+      accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    >
+
+    <div
+      class="dz-filename"
+      id="dz-filename"
+      aria-live="polite"
+    ></div>
+  </div>
+
+  <div class="upload-rules">
+    <span class="rule">✓ CSV and Excel supported</span>
+    <span class="rule">✓ up to 50MB</span>
+    <span class="rule">✓ original file remains unchanged</span>
+  </div>
+
+  <div class="upload-actions">
+    <button
+      type="submit"
+      class="btn"
+      id="upload-submit"
+      disabled
+    >
+      Scan file →
+    </button>
+  </div>
+
+</form>
+
 
   </div>
 </section>
 
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'javascript/cleaner.js' %}"></script>{% endblock %}
+{% block extra_js %}
+
+<script src="{% static 'javascript/cleaner.js' %}"></script>
+
+{% endblock %}

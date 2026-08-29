@@ -5,27 +5,52 @@ from pathlib import Path
 
 import pandas as pd
 from django.conf import settings
+from django.db import transaction
 from django.utils import timezone
 
-from apps.cleaner.models import CleaningJob
+from apps.cleaner.models import (
+    CleaningFinding,
+    CleaningJob,
+    CleaningJobOutput,
+)
 from apps.cleaner.services.cleaner import clean_dataframe
-from apps.datasets.models import Dataset
+from apps.datasets.services.lifecycle import DatasetLifecycleService
 from apps.exporter.services import ExportService
-from apps.cleaner.models import CleaningFinding
 from apps.importer.services import ImportService
+
 
 class CleaningPipeline:
     """
-    Orchestrates the complete DataPilot cleaning workflow.
+    Production orchestration layer for DataPilot cleaning.
 
-    Responsibilities:
-        1. Load the imported dataset.
-        2. Run the cleaning engine.
-        3. Export the cleaned dataset.
-        4. Generate the PDF report.
-        5. Update the CleaningJob and Dataset records.
+    Pipeline:
 
-    The HTTP view should not need to know how these operations work.
+        original file
+            ↓
+        ImportService
+            ↓
+        pandas DataFrame
+            ↓
+        cleaning engine
+            ↓
+        cleaned DataFrame + statistics
+            ↓
+        ExportService
+            ↓
+        CSV + XLSX + PDF
+            ↓
+        CleaningJobOutput
+            ↓
+        completed CleaningJob
+            ↓
+        cleaned Dataset
+
+    The pipeline is deliberately format-independent.
+
+    Input format decisions belong to ImportService.
+    Cleaning decisions belong to the cleaning engine.
+    Output format decisions belong to ExportService.
+    This class coordinates those components.
     """
 
     def __init__(self, job: CleaningJob) -> None:
@@ -33,23 +58,27 @@ class CleaningPipeline:
         self.importer = ImportService()
         self.exporter = ExportService()
 
+    # ==================================================================
+    # PUBLIC API
+    # ==================================================================
+
     def run(self) -> dict:
         """
         Execute the complete cleaning pipeline.
 
         Returns:
-            Dictionary containing:
-                - cleaned DataFrame
-                - cleaning statistics
-                - CSV filename
-                - PDF filename
-                - CSV path
-                - PDF path
+            A dictionary containing the cleaned DataFrame,
+            cleaning statistics, and generated output paths.
+
+        Raises:
+            Exception:
+                The original pipeline exception is re-raised after
+                failure state has been persisted.
         """
 
-        self._mark_processing()
-
         try:
+            self._mark_processing()
+
             dataframe = self._load_dataframe()
 
             cleaned_dataframe, statistics = clean_dataframe(
@@ -60,10 +89,13 @@ class CleaningPipeline:
                 cleaned_dataframe
             )
 
-            self._mark_complete(
-                statistics=statistics,
-                csv_filename=output_paths["csv_filename"],
-            )
+            with transaction.atomic():
+                self._persist_outputs(output_paths)
+
+                self._mark_complete(
+                    statistics=statistics,
+                    csv_filename=output_paths["csv_filename"],
+                )
 
             return {
                 "cleaned_dataframe": cleaned_dataframe,
@@ -72,36 +104,78 @@ class CleaningPipeline:
             }
 
         except Exception as exc:
-            self._mark_failed(str(exc))
+            self._mark_failed(
+                str(exc)
+            )
             raise
 
-    # ------------------------------------------------------------------
-    # Pipeline stages
-    # ------------------------------------------------------------------
+    # ==================================================================
+    # IMPORT
+    # ==================================================================
 
     def _load_dataframe(self) -> pd.DataFrame:
-        """Load the original dataset through the importer."""
+        """
+        Import the original uploaded file into a DataFrame.
+        """
 
         if not self.job.original_file:
             raise ValueError(
                 "Cleaning job does not have an original file."
             )
 
-        dataframe, _detected = self.importer.read(
-            file_path=self.job.original_file.path,
-            filename=self.job.original_file.name,
+        file_path = self.job.original_file.path
+        filename = self.job.original_file.name
+
+        result = self.importer.read(
+            file_path=file_path,
+            filename=filename,
         )
 
+        dataframe = result.dataframe
+
+        if dataframe is None:
+            raise ValueError(
+                "Importer returned no DataFrame."
+            )
+
+        if not isinstance(dataframe, pd.DataFrame):
+            raise TypeError(
+                "Importer returned an invalid DataFrame result."
+            )
+
         return dataframe
+
+    # ==================================================================
+    # EXPORT
+    # ==================================================================
 
     def _export_results(
         self,
         dataframe: pd.DataFrame,
-    ) -> dict:
-        """Export cleaned CSV and PDF report."""
+    ) -> dict[str, str]:
+        """
+        Export the cleaned DataFrame into DataPilot's standard outputs.
+
+        Current standard outputs:
+
+            <name>_cleaned.csv
+            <name>_cleaned.xlsx
+            <name>_cleaning_report.pdf
+        """
+
+        if dataframe is None:
+            raise ValueError(
+                "Cannot export a missing DataFrame."
+            )
+
+        if not self.job.original_file:
+            raise ValueError(
+                "Cleaning job does not have an original file."
+            )
 
         cleaned_dir = (
-            Path(settings.MEDIA_ROOT) / "cleaned"
+            Path(settings.MEDIA_ROOT)
+            / "cleaned"
         )
 
         cleaned_dir.mkdir(
@@ -121,18 +195,52 @@ class CleaningPipeline:
             f"{base_name}_cleaned.csv"
         )
 
+        xlsx_filename = (
+            f"{base_name}_cleaned.xlsx"
+        )
+
         pdf_filename = (
             f"{base_name}_cleaning_report.pdf"
         )
 
-        csv_path = cleaned_dir / csv_filename
-        pdf_path = cleaned_dir / pdf_filename
+        csv_path = (
+            cleaned_dir
+            / csv_filename
+        )
+
+        xlsx_path = (
+            cleaned_dir
+            / xlsx_filename
+        )
+
+        pdf_path = (
+            cleaned_dir
+            / pdf_filename
+        )
+
+        # --------------------------------------------------------------
+        # CSV
+        # --------------------------------------------------------------
 
         self.exporter.export(
             dataframe,
             csv_path,
             "csv",
         )
+
+        # --------------------------------------------------------------
+        # Excel
+        # --------------------------------------------------------------
+
+        self.exporter.export(
+            dataframe,
+            xlsx_path,
+            "xlsx",
+        )
+
+        # --------------------------------------------------------------
+        # PDF report
+        # --------------------------------------------------------------
 
         self.exporter.export(
             dataframe,
@@ -141,68 +249,186 @@ class CleaningPipeline:
             original_filename=original_filename,
         )
 
+        # --------------------------------------------------------------
+        # Verify physical outputs
+        # --------------------------------------------------------------
+
+        output_paths = {
+            "csv_path": csv_path,
+            "xlsx_path": xlsx_path,
+            "pdf_path": pdf_path,
+        }
+
+        for output_type, path in output_paths.items():
+            if not path.is_file():
+                raise FileNotFoundError(
+                    f"Exporter did not create expected "
+                    f"{output_type}: {path}"
+                )
+
         return {
             "csv_filename": csv_filename,
+            "xlsx_filename": xlsx_filename,
             "pdf_filename": pdf_filename,
             "csv_path": str(csv_path),
+            "xlsx_path": str(xlsx_path),
             "pdf_path": str(pdf_path),
         }
 
-    # ------------------------------------------------------------------
-    # Database state
-    # ------------------------------------------------------------------
+    # ==================================================================
+    # OUTPUT PERSISTENCE
+    # ==================================================================
+
+    def _persist_outputs(
+        self,
+        output_paths: dict[str, str],
+    ) -> None:
+        """
+        Replace the job's previous output records with the new
+        authoritative output set.
+        """
+
+        CleaningJobOutput.objects.filter(
+            job=self.job
+        ).delete()
+
+        definitions = [
+            {
+                "file_format": CleaningJobOutput.Format.CSV,
+                "path": output_paths["csv_path"],
+                "filename": output_paths["csv_filename"],
+                "content_type": "text/csv",
+            },
+            {
+                "file_format": CleaningJobOutput.Format.XLSX,
+                "path": output_paths["xlsx_path"],
+                "filename": output_paths["xlsx_filename"],
+                "content_type": (
+                    "application/vnd.openxmlformats-officedocument."
+                    "spreadsheetml.sheet"
+                ),
+            },
+            {
+                "file_format": CleaningJobOutput.Format.PDF,
+                "path": output_paths["pdf_path"],
+                "filename": output_paths["pdf_filename"],
+                "content_type": "application/pdf",
+            },
+        ]
+
+        for definition in definitions:
+            path = Path(
+                definition["path"]
+            )
+
+            if not path.is_file():
+                raise FileNotFoundError(
+                    "Cannot persist missing cleaning output: "
+                    f"{path}"
+                )
+
+            relative_path = (
+                path
+                .relative_to(settings.MEDIA_ROOT)
+                .as_posix()
+            )
+
+            CleaningJobOutput.objects.create(
+                job=self.job,
+                file=relative_path,
+                file_format=definition["file_format"],
+                filename=definition["filename"],
+                content_type=definition["content_type"],
+            )
+
+    # ==================================================================
+    # PROCESSING STATE
+    # ==================================================================
 
     def _mark_processing(self) -> None:
-        """Mark the job and dataset as processing."""
+        """
+        Move the job and associated dataset into processing state.
+        """
 
-        self.job.status = CleaningJob.Status.PROCESSING
+        self.job.status = (
+            CleaningJob.Status.PROCESSING
+        )
+
+        self.job.error_message = ""
+        self.job.completed_at = None
 
         self.job.save(
             update_fields=[
                 "status",
+                "error_message",
+                "completed_at",
                 "updated_at",
             ]
         )
 
         if self.job.dataset:
-            self.job.dataset.status = (
-                Dataset.Status.PROCESSING
+            DatasetLifecycleService.start_processing(
+                self.job.dataset
             )
 
-            self.job.dataset.save(
-                update_fields=[
-                    "status",
-                    "updated_at",
-                ]
-            )
+    # ==================================================================
+    # COMPLETION
+    # ==================================================================
 
     def _mark_complete(
         self,
+        *,
         statistics: dict,
         csv_filename: str,
     ) -> None:
-        """Persist successful pipeline results."""
+        """
+        Persist the successful cleaning result.
+        """
 
-        fixed_issue_count = (
-            statistics["missing_values"]
-            + statistics["duplicates_removed"]
+        missing_values = int(
+            statistics.get(
+                "missing_values",
+                0,
+            )
         )
 
-        self.job.row_count = (
-            statistics["original_rows"]
+        duplicates_removed = int(
+            statistics.get(
+                "duplicates_removed",
+                0,
+            )
         )
 
-        self.job.issues_found = (
-            fixed_issue_count
+        empty_rows_removed = int(
+            statistics.get(
+                "empty_rows_removed",
+                0,
+            )
         )
 
-        self.job.issues_fixed = (
-            fixed_issue_count
+        rows_removed = int(
+            statistics.get(
+                "rows_removed",
+                0,
+            )
         )
 
-        self.job.rows_removed = (
-            statistics["rows_removed"]
+        issues_fixed = (
+            missing_values
+            + duplicates_removed
+            + empty_rows_removed
         )
+
+        self.job.row_count = int(
+            statistics.get(
+                "original_rows",
+                0,
+            )
+        )
+
+        self.job.issues_found = issues_fixed
+        self.job.issues_fixed = issues_fixed
+        self.job.rows_removed = rows_removed
 
         self.job.cleaned_file.name = (
             f"cleaned/{csv_filename}"
@@ -212,10 +438,17 @@ class CleaningPipeline:
             CleaningJob.Status.COMPLETED
         )
 
-        self.job.completed_at = timezone.now()
+        self.job.error_message = ""
+
+        self.job.completed_at = (
+            timezone.now()
+        )
 
         self._save_findings(
-            statistics.get("findings", [])
+            statistics.get(
+                "findings",
+                [],
+            )
         )
 
         self.job.save(
@@ -226,6 +459,7 @@ class CleaningPipeline:
                 "issues_fixed",
                 "rows_removed",
                 "status",
+                "error_message",
                 "completed_at",
                 "updated_at",
             ]
@@ -236,76 +470,121 @@ class CleaningPipeline:
                 f"cleaned/{csv_filename}"
             )
 
-            self.job.dataset.status = (
-                Dataset.Status.CLEANED
-            )
-
             self.job.dataset.save(
                 update_fields=[
                     "cleaned_file",
-                    "status",
                     "updated_at",
                 ]
             )
+
+            DatasetLifecycleService.mark_cleaned(
+                self.job.dataset
+            )
+
+    # ==================================================================
+    # FAILURE
+    # ==================================================================
 
     def _mark_failed(
         self,
         error_message: str,
     ) -> None:
-        """Persist pipeline failure state."""
+        """
+        Persist a failed pipeline state.
 
-        self.job.status = (
-            CleaningJob.Status.FAILED
-        )
+        Failure handling is defensive so that an error while updating
+        lifecycle state never hides the original pipeline exception.
+        """
 
-        self.job.error_message = (
-            error_message
-        )
-
-        self.job.save(
-            update_fields=[
-                "status",
-                "error_message",
-                "updated_at",
-            ]
-        )
-
-        if self.job.dataset:
-            self.job.dataset.status = (
-                Dataset.Status.FAILED
+        try:
+            self.job.status = (
+                CleaningJob.Status.FAILED
             )
 
-            self.job.dataset.save(
+            self.job.error_message = (
+                error_message
+            )
+
+            self.job.completed_at = None
+
+            self.job.save(
                 update_fields=[
                     "status",
+                    "error_message",
+                    "completed_at",
                     "updated_at",
                 ]
             )
+
+        except Exception:
+            pass
+
+        if self.job.dataset:
+            try:
+                DatasetLifecycleService.mark_failed(
+                    self.job.dataset,
+                    error_message,
+                )
+            except Exception:
+                pass
+
+    # ==================================================================
+    # FINDINGS
+    # ==================================================================
+
     def _save_findings(
         self,
         findings: list[dict],
     ) -> None:
-        """Persist structured cleaning findings."""
+        """
+        Replace the job's previous findings with the latest
+        authoritative findings.
+        """
 
         CleaningFinding.objects.filter(
             job=self.job
         ).delete()
 
-        records = []
+        records: list[CleaningFinding] = []
 
         for finding in findings:
+            finding_type = finding.get(
+                "finding_type"
+            )
+
+            description = finding.get(
+                "description"
+            )
+
+            if not finding_type:
+                raise ValueError(
+                    "Cleaning finding is missing "
+                    "'finding_type'."
+                )
+
+            if not description:
+                raise ValueError(
+                    "Cleaning finding is missing "
+                    "'description'."
+                )
+
             records.append(
                 CleaningFinding(
                     job=self.job,
-                    finding_type=finding["finding_type"],
+                    finding_type=finding_type,
                     column_name=finding.get(
                         "column_name",
                         "",
                     ),
-                    description=finding["description"],
-                    fixed=finding.get(
-                        "fixed",
-                        False,
+                    row_number=finding.get(
+                        "row_number"
+                    ),
+                    description=description,
+                    fixed=bool(
+                        finding.get(
+                            "fixed",
+                            False,
+                        )
                     ),
                 )
             )

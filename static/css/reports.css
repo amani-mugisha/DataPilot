@@ -1,193 +1,719 @@
 /* ==========================================================================
    DataPilot — reports.css
-   Cleaning history + individual report pages.
-   Uses the same tokens as base.css/cleaner.css (paper/ink/line/flag/fix) —
-   no separate design vocabulary.
+   Cleaning history + cleaning reports
    ========================================================================== */
 
-.history-section{ padding: var(--space-7) 0 var(--space-9); }
+/* ==========================================================================
+   Shared section layout
+   ========================================================================== */
 
-.history-card{
+.history-section {
+  padding: var(--space-7) 0 var(--space-9);
+}
+
+.history-card {
+  overflow: hidden;
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  overflow: hidden;
 }
-.history-card + .history-card{ margin-top: var(--space-5); }
 
-.history-header{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-5);
-  border-bottom: 1px solid var(--line);
+.history-card + .history-card {
+  margin-top: var(--space-5);
 }
-.history-header h2{ margin: 0 0 4px; }
-.history-header p{
-  margin: 0;
+
+
+/* ==========================================================================
+   History toolbar
+   ========================================================================== */
+
+.history-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.history-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
   color: var(--ink-soft);
   font-size: 0.85rem;
 }
 
-/* ==========================================================================
-   Table
-   ========================================================================== */
-.table-wrapper{ width: 100%; overflow-x: auto; }
-
-.history-table{
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 850px;
-}
-.history-table th{
-  padding: 14px 18px;
-  text-align: left;
+.history-count strong {
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent-mono);
-  background: var(--paper-dim);
-  border-bottom: 1px solid var(--line);
-}
-.history-table td{
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--line);
   font-size: 0.9rem;
 }
-.history-table tbody tr:last-child td{ border-bottom: none; }
-.history-table tbody tr{ transition: background 0.15s ease; }
-.history-table tbody tr:hover{ background: var(--paper-dim); }
 
-.dataset-name{
+
+/* ==========================================================================
+   Card headers
+   ========================================================================== */
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+
+  padding: var(--space-5);
+
+  border-bottom: 1px solid var(--line);
+}
+
+.history-header h2 {
+  margin-bottom: var(--space-2);
+}
+
+.history-header p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+
+/* ==========================================================================
+   History table
+   ========================================================================== */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.history-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.history-table th {
+  padding: 13px 18px;
+
+  background: var(--paper-dim);
+  border-bottom: 1px solid var(--line);
+
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   font-weight: 600;
+  letter-spacing: 0.07em;
+  text-align: left;
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+.history-table td {
+  padding: 15px 18px;
+
+  border-bottom: 1px solid var(--line);
+
   color: var(--ink);
-  max-width: 220px;
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+
+.history-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.history-table tbody tr:hover {
+  background: var(--paper);
+}
+
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* ==========================================================================
+   Dataset information
+   ========================================================================== */
+
+.dataset-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.dataset-name {
+  display: block;
+  max-width: 260px;
+
   overflow: hidden;
+
+  color: var(--ink);
+  font-weight: 600;
+  line-height: 1.3;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* ==========================================================================
-   Status pills — reuses the flag/fix diff language from the rest of the app
-   ========================================================================== */
-.status{
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-.status-completed{ background: var(--fix-bg); color: var(--fix); }
-.status-processing{ background: var(--flag-bg); color: var(--flag); }
-.status-pending{ background: var(--paper-dim); color: var(--accent-mono); }
-.status-failed{ background: var(--flag-bg); color: var(--flag); }
-
-/* ==========================================================================
-   Date column
-   ========================================================================== */
-.date{ display: block; font-weight: 500; }
-.history-table td small{
+.dataset-file {
   display: block;
-  margin-top: 3px;
+  max-width: 240px;
+
+  overflow: hidden;
+
   color: var(--accent-mono);
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.4;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+
 /* ==========================================================================
-   View / back buttons
+   Data values
    ========================================================================== */
-.view-btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 7px 14px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-sm);
-  color: var(--ink);
-  text-decoration: none;
+
+.metric {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 500;
-  background: var(--white);
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-.view-btn:hover{
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
+  white-space: nowrap;
 }
 
-.back-link{ margin-bottom: var(--space-5); }
 
 /* ==========================================================================
-   Report page — job meta, stat grid inside a card, completion note
+   Format
    ========================================================================== */
-.job-meta{ display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); }
-.report-stats{ padding: var(--space-5); }
 
-.completed-note{
-  margin-top: var(--space-4);
+.format-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 46px;
+  padding: 4px 8px;
+
+  background: var(--paper-dim);
+  border: 1px solid var(--line);
+
+  border-radius: 999px;
+
   color: var(--accent-mono);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
+
 /* ==========================================================================
-   Empty state
+   Status
    ========================================================================== */
-.empty-history{
-  text-align: center;
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 5px 10px;
+
+  border-radius: 999px;
+
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-completed {
+  background: var(--fix-bg);
+  color: var(--fix);
+}
+
+.status-processing {
+  background: var(--flag-bg);
+  color: var(--flag);
+}
+
+.status-pending {
+  background: var(--paper-dim);
+  color: var(--accent-mono);
+}
+
+.status-failed {
+  background: var(--flag-bg);
+  color: var(--flag);
+}
+
+
+/* ==========================================================================
+   Date
+   ========================================================================== */
+
+.date-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.date {
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.date-cell small {
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+
+/* ==========================================================================
+   Actions
+   ========================================================================== */
+
+.view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px 13px;
+
+  background: var(--white);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.12s ease;
+}
+
+.view-btn:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.view-btn:active {
+  transform: translateY(1px);
+}
+
+.view-btn:focus-visible {
+  outline: 2px solid var(--flag);
+  outline-offset: 2px;
+}
+
+
+/* ==========================================================================
+   Empty history
+   ========================================================================== */
+
+.empty-history {
   padding: var(--space-9) var(--space-5);
+
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
+
+  text-align: center;
 }
-.empty-icon{
-  width: 48px; height: 48px;
-  margin: 0 auto var(--space-5);
+
+.empty-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: var(--paper-dim);
-  color: var(--accent-mono);
-  font-size: 1.4rem;
-}
-.empty-history h2{ margin-bottom: var(--space-2); }
-.empty-history p{
+
+  width: 48px;
+  height: 48px;
+
   margin: 0 auto var(--space-5);
-  max-width: 480px;
+
+  background: var(--paper-dim);
+  border: 1px solid var(--line);
+
+  border-radius: 50%;
+
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+}
+
+.empty-history h2 {
+  margin-bottom: var(--space-2);
+}
+
+.empty-history p {
+  max-width: 500px;
+  margin: 0 auto var(--space-5);
+
   color: var(--ink-soft);
 }
+
+
+/* ==========================================================================
+   Inline empty state
+   ========================================================================== */
+
+.empty-inline {
+  padding: var(--space-6) var(--space-5);
+
+  text-align: center;
+}
+
+.empty-inline strong {
+  display: block;
+  margin-bottom: var(--space-2);
+
+  color: var(--ink);
+}
+
+.empty-inline p {
+  margin: 0;
+
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+}
+
+
+/* ==========================================================================
+   Report navigation
+   ========================================================================== */
+
+.report-navigation {
+  margin-bottom: var(--space-4);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-decoration: none;
+
+  transition: color 0.15s ease;
+}
+
+.back-link:hover {
+  color: var(--ink);
+}
+
+.back-link:focus-visible {
+  outline: 2px solid var(--flag);
+  outline-offset: 3px;
+}
+
+
+/* ==========================================================================
+   Report overview
+   ========================================================================== */
+
+.job-meta {
+  align-items: flex-start;
+}
+
+.job-meta h2 {
+  margin-bottom: var(--space-2);
+}
+
+.job-meta p {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+
+/* ==========================================================================
+   Report statistics
+   ========================================================================== */
+
+.report-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+
+  background: var(--line);
+  border-top: 0;
+}
+
+.stat-card {
+  min-width: 0;
+  padding: var(--space-5);
+
+  background: var(--white);
+}
+
+.stat-card span {
+  display: block;
+  margin-bottom: 7px;
+
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.stat-card strong {
+  display: block;
+
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+
+/* ==========================================================================
+   Generated outputs
+   ========================================================================== */
+
+.output-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.output-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+
+  padding: var(--space-4) var(--space-5);
+
+  border-bottom: 1px solid var(--line);
+}
+
+.output-item:last-child {
+  border-bottom: none;
+}
+
+.output-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+
+  min-width: 0;
+}
+
+.output-info > div {
+  min-width: 0;
+}
+
+.output-info strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.output-info small {
+  display: block;
+  margin-top: 4px;
+
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.output-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 48px;
+
+  padding: 5px 8px;
+
+  background: var(--paper-dim);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+
+/* ==========================================================================
+   Findings
+   ========================================================================== */
+
+.findings-table {
+  min-width: 900px;
+}
+
+.findings-table td {
+  vertical-align: top;
+}
+
+
+/* ==========================================================================
+   Completed note
+   ========================================================================== */
+
+.completed-note {
+  margin: var(--space-4) 0 0;
+
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
 
 /* ==========================================================================
    Pagination
    ========================================================================== */
-.pagination{
+
+.pagination {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   gap: var(--space-4);
+
   margin-top: var(--space-6);
+
+  color: var(--accent-mono);
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
 }
-.pagination a{
+
+.pagination a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   padding: 8px 14px;
+
+  background: var(--white);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
+
   color: var(--ink);
   text-decoration: none;
-  background: var(--white);
-}
-.pagination a:hover{ background: var(--paper-dim); }
 
-@media (max-width: 700px){
-  .history-header{ padding: var(--space-4); flex-direction: column; align-items: flex-start; gap: var(--space-2); }
-  .history-table th, .history-table td{ padding: 12px; }
-  .job-meta{ flex-direction: column; align-items: flex-start; }
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.12s ease;
+}
+
+.pagination a:hover {
+  background: var(--paper-dim);
+  border-color: var(--ink);
+}
+
+.pagination a:active {
+  transform: translateY(1px);
+}
+
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 900px) {
+
+  .report-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 760px) {
+
+  .history-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .history-toolbar .btn {
+    width: 100%;
+  }
+
+  .history-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .job-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 12px;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .history-section {
+    padding-top: var(--space-6);
+  }
+
+  .report-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-card {
+    padding: var(--space-4);
+  }
+
+  .output-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .output-info {
+    width: 100%;
+  }
+
+  .output-item .view-btn {
+    width: 100%;
+  }
+
+}
+
+
+@media (max-width: 420px) {
+
+  .report-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .history-header,
+  .output-item {
+    padding: var(--space-4);
+  }
+
 }

@@ -5,9 +5,16 @@ from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 
-from apps.cleaner.models import CleaningFinding, CleaningJob
+from apps.cleaner.models import (
+    CleaningFinding,
+    CleaningJob,
+    CleaningJobOutput,
+)
 from apps.cleaner.services.pipeline import CleaningPipeline
 from apps.datasets.models import Dataset
+from openpyxl import Workbook
+
+from pathlib import Path
 
 
 @override_settings(
@@ -86,6 +93,55 @@ class CleaningPipelineTests(TestCase):
             result,
         )
 
+    def test_pipeline_creates_all_standard_outputs(self):
+        dataset = self._create_dataset()
+        job = self._create_job(dataset)
+
+        result = CleaningPipeline(job).run()
+
+        outputs = CleaningJobOutput.objects.filter(
+            job=job
+        )
+
+        self.assertEqual(
+            outputs.count(),
+            3,
+        )
+
+        formats = set(
+            outputs.values_list(
+                "file_format",
+                flat=True,
+            )
+        )
+
+        self.assertEqual(
+            formats,
+            {
+                CleaningJobOutput.Format.CSV,
+                CleaningJobOutput.Format.XLSX,
+                CleaningJobOutput.Format.PDF,
+            },
+        )
+
+        self.assertTrue(
+            result["csv_filename"].endswith(
+                ".csv"
+            )
+        )
+
+        self.assertTrue(
+            result["xlsx_filename"].endswith(
+                ".xlsx"
+            )
+        )
+
+        self.assertTrue(
+            result["pdf_filename"].endswith(
+                ".pdf"
+            )
+        )
+
     def test_pipeline_returns_statistics(self):
         dataset = self._create_dataset()
         job = self._create_job(dataset)
@@ -112,6 +168,43 @@ class CleaningPipelineTests(TestCase):
         self.assertIn(
             "rows_removed",
             statistics,
+        )
+
+    def test_pipeline_creates_excel_output(self):
+        dataset = self._create_dataset()
+        job = self._create_job(dataset)
+
+        CleaningPipeline(job).run()
+
+        output = CleaningJobOutput.objects.get(
+            job=job,
+            file_format=CleaningJobOutput.Format.XLSX,
+        )
+
+        self.assertTrue(
+            output.filename.endswith(
+                ".xlsx"
+            )
+        )
+
+        self.assertTrue(
+            output.file.name.startswith(
+                "cleaned/"
+            )
+        )
+
+        self.assertEqual(
+            output.content_type,
+            (
+                "application/vnd.openxmlformats-officedocument."
+                "spreadsheetml.sheet"
+            ),
+        )
+
+        self.assertTrue(
+            Path(
+                output.file.path
+            ).exists()
         )
 
     def test_pipeline_persists_job_statistics(self):
@@ -230,4 +323,86 @@ class CleaningPipelineTests(TestCase):
         self.assertEqual(
             dataset.status,
             Dataset.Status.FAILED,
+        )
+
+    def test_pipeline_accepts_excel_workbook(self):
+        workbook = Workbook()
+
+        worksheet = workbook.active
+        worksheet.title = "Customers"
+
+        worksheet.append(
+            ["name", "age"]
+        )
+
+        worksheet.append(
+            ["Amani", 20]
+        )
+
+        worksheet.append(
+            ["John", None]
+        )
+
+        worksheet.append(
+            ["John", 25]
+        )
+
+        buffer = BytesIO()
+
+        workbook.save(
+            buffer
+        )
+
+        buffer.seek(0)
+
+        uploaded_file = SimpleUploadedFile(
+            "customers.xlsx",
+            buffer.getvalue(),
+            content_type=(
+                "application/vnd.openxmlformats-officedocument."
+                "spreadsheetml.sheet"
+            ),
+        )
+
+        dataset = Dataset.objects.create(
+            name="Excel Customers",
+            original_file=uploaded_file,
+        )
+
+        job = CleaningJob.objects.create(
+            dataset=dataset,
+            original_file=dataset.original_file,
+        )
+
+        result = CleaningPipeline(job).run()
+
+        job.refresh_from_db()
+        dataset.refresh_from_db()
+
+        self.assertEqual(
+            job.status,
+            CleaningJob.Status.COMPLETED,
+        )
+
+        self.assertEqual(
+            dataset.status,
+            Dataset.Status.CLEANED,
+        )
+
+        self.assertEqual(
+            result["statistics"]["original_rows"],
+            3,
+        )
+
+        self.assertTrue(
+            job.cleaned_file.name
+        )
+
+        self.assertTrue(
+            dataset.cleaned_file.name
+        )
+
+        self.assertIn(
+            "cleaned",
+            job.cleaned_file.name,
         )

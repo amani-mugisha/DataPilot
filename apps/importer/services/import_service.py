@@ -9,24 +9,23 @@ from apps.importer.detectors.file_detector import (
     DetectedFile,
     detect_file,
 )
-from apps.importer.readers import BaseReader, CSVReader
-from apps.importer.validators import (
-    BaseValidator,
-    CSVValidator,
-)
+from apps.importer.formats import SUPPORTED_FORMATS
+from apps.importer.readers import BaseReader
+from apps.importer.readers.registry import READERS
+from apps.importer.validators import BaseValidator
+from apps.importer.validators.registry import VALIDATORS
+from apps.importer.results import ImportResult
 
 
 class ImportService:
     """
     Central coordinator for DataPilot file importing.
 
-    The service is responsible for orchestration only.
-
     Workflow:
 
         filename
             ↓
-        File detection
+        Detection
             ↓
         Validation
             ↓
@@ -39,8 +38,8 @@ class ImportService:
     """
 
     def __init__(self) -> None:
-        self.readers = self._build_readers()
-        self.validators = self._build_validators()
+        self.readers: dict[str, BaseReader] = READERS
+        self.validators: dict[str, BaseValidator] = VALIDATORS
 
         self._validate_registry()
 
@@ -48,46 +47,39 @@ class ImportService:
     # Registry
     # ------------------------------------------------------------------
 
-    def _build_readers(self) -> dict[str, BaseReader]:
-        """
-        Build the reader registry.
-
-        Additional formats can be registered here without changing
-        the public ImportService interface.
-        """
-
-        return {
-            "csv": CSVReader(),
-        }
-
-    def _build_validators(self) -> dict[str, BaseValidator]:
-        """
-        Build the validator registry.
-
-        Additional format validators can be registered here later.
-        """
-
-        return {
-            "csv": CSVValidator(),
-        }
-
     def _validate_registry(self) -> None:
         """
-        Ensure every registered reader has a corresponding validator.
+        Validate importer registry configuration.
 
-        This prevents partially configured formats from silently
-        reaching production.
+        Registry rules:
+
+        1. Every supported format must have a validator.
+        2. Every registered reader must have a validator.
+        3. Every registered reader must represent a supported format.
+        4. Every registered validator must represent a supported format.
+
+        A format may have a validator without having a reader.
+        This supports validation-only formats such as Excel add-ins.
         """
 
-        reader_formats = set(self.readers)
-        validator_formats = set(self.validators)
-
-        missing_validators = (
-            reader_formats - validator_formats
+        supported_formats = set(
+            SUPPORTED_FORMATS.values()
         )
 
-        missing_readers = (
-            validator_formats - reader_formats
+        reader_formats = set(
+            self.readers
+        )
+
+        validator_formats = set(
+            self.validators
+        )
+
+        # --------------------------------------------------------------
+        # Supported formats must have validators
+        # --------------------------------------------------------------
+
+        missing_validators = (
+            supported_formats - validator_formats
         )
 
         if missing_validators:
@@ -100,13 +92,57 @@ class ImportService:
                 f"{formats}"
             )
 
-        if missing_readers:
+        # --------------------------------------------------------------
+        # Readers must have validators
+        # --------------------------------------------------------------
+
+        readers_without_validators = (
+            reader_formats - validator_formats
+        )
+
+        if readers_without_validators:
             formats = ", ".join(
-                sorted(missing_readers)
+                sorted(readers_without_validators)
             )
 
             raise RuntimeError(
-                "Missing reader registration for: "
+                "Reader registered without validator for: "
+                f"{formats}"
+            )
+
+        # --------------------------------------------------------------
+        # Readers must represent supported formats
+        # --------------------------------------------------------------
+
+        unsupported_readers = (
+            reader_formats - supported_formats
+        )
+
+        if unsupported_readers:
+            formats = ", ".join(
+                sorted(unsupported_readers)
+            )
+
+            raise RuntimeError(
+                "Reader registered for unsupported format: "
+                f"{formats}"
+            )
+
+        # --------------------------------------------------------------
+        # Validators must represent supported formats
+        # --------------------------------------------------------------
+
+        unsupported_validators = (
+            validator_formats - supported_formats
+        )
+
+        if unsupported_validators:
+            formats = ", ".join(
+                sorted(unsupported_validators)
+            )
+
+            raise RuntimeError(
+                "Validator registered for unsupported format: "
                 f"{formats}"
             )
 
@@ -119,7 +155,9 @@ class ImportService:
         filename: str,
         mime_type: str | None = None,
     ) -> DetectedFile:
-        """Detect the logical file format."""
+        """
+        Detect the logical DataPilot format from a filename.
+        """
 
         return detect_file(
             filename,
@@ -139,16 +177,16 @@ class ImportService:
     ) -> DetectedFile:
         """
         Detect and validate an uploaded file.
-
-        Returns:
-            DetectedFile containing the detected file metadata.
-
-        Raises:
-            ValueError: If the format is unsupported or invalid.
         """
 
+        name = (
+            filename
+            if filename is not None
+            else self._get_filename(file_path)
+        )
+
         detected = self.detect(
-            filename or "",
+            name,
             mime_type,
         )
 
@@ -164,7 +202,7 @@ class ImportService:
 
         validator.validate(
             file_path=file_path,
-            filename=filename,
+            filename=name,
             file_size=file_size,
         )
 
@@ -180,15 +218,13 @@ class ImportService:
         filename: str,
         mime_type: str | None = None,
         file_size: int | None = None,
-    ) -> tuple[pd.DataFrame, DetectedFile]:
+        **reader_options,
+    ) -> ImportResult:
         """
         Validate, detect, and read an uploaded file.
 
-        Returns:
-            A tuple containing:
-
-                - pandas DataFrame
-                - DetectedFile metadata
+        Reader-specific options are passed through without the
+        ImportService needing to know the file format.
         """
 
         detected = self.validate(
@@ -209,18 +245,97 @@ class ImportService:
             )
 
         dataframe = reader.read(
-            file_path
+            file_path,
+            filename=detected.filename,
+            **reader_options,
         )
 
-        return dataframe, detected
+        return ImportResult(
+            filename=detected.filename,
+            extension=detected.extension,
+            format=detected.format,
+            mime_type=detected.mime_type,
+            dataframe=dataframe,
+        )
 
     # ------------------------------------------------------------------
     # Metadata
     # ------------------------------------------------------------------
 
     def supported_formats(self) -> list[str]:
-        """Return formats currently supported by the importer."""
+        """
+        Return formats that can actually be imported
+        into pandas DataFrames.
+        """
 
         return sorted(
             self.readers.keys()
+        )
+
+    # ------------------------------------------------------------------
+    # Excel
+    # ------------------------------------------------------------------
+
+    def list_sheets(
+        self,
+        file_path: str | Path | BinaryIO,
+        filename: str,
+    ) -> list[str]:
+        """
+        Return worksheet names for an Excel workbook.
+        """
+
+        detected = self.detect(
+            filename
+        )
+
+        if not detected.format.startswith("excel_"):
+            raise ValueError(
+                "Sheet listing is only supported for Excel files."
+            )
+
+        reader = self.readers.get(
+            detected.format
+        )
+
+        if reader is None:
+            raise ValueError(
+                f"No reader is registered for "
+                f"'{detected.format}'."
+            )
+
+        if not hasattr(reader, "list_sheets"):
+            raise ValueError(
+                f"Reader for '{detected.format}' "
+                "does not support sheet listing."
+            )
+
+        return reader.list_sheets(
+            file_path,
+            filename=filename,
+        )
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _get_filename(
+        file_path: str | Path | BinaryIO,
+    ) -> str:
+        """
+        Extract filename from a filesystem path.
+
+        File-like objects require the caller to provide filename.
+        """
+
+        if isinstance(
+            file_path,
+            (str, Path),
+        ):
+            return Path(file_path).name
+
+        raise ValueError(
+            "filename is required when importing "
+            "a file-like object."
         )

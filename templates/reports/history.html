@@ -3,87 +3,371 @@
 
 {% block title %}Cleaning History — DataPilot{% endblock %}
 {% block nav_history %}active{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/reports.css' %}">{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/reports.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <div class="page-head">
   <div class="wrap">
-    <span class="eyebrow">DataPilot</span>
-    <h1>Cleaning History</h1>
-    <p>View your previous CSV cleaning jobs, results, and generated files.</p>
+
+<span class="eyebrow">DataPilot</span>
+
+<h1>Cleaning History</h1>
+
+<p>
+  Review previous cleaning operations, inspect results,
+  and download generated files.
+</p>
+
   </div>
 </div>
 
 <section class="history-section">
   <div class="wrap">
 
-    {% if jobs %}
-    <div class="history-card">
-      <div class="history-header">
-        <div>
-          <h2>Previous cleaning jobs</h2>
-          <p>{{ jobs.paginator.count }} cleaning job{{ jobs.paginator.count|pluralize }}</p>
-        </div>
+{% if jobs %}
+
+  <div class="history-toolbar">
+
+    <div class="history-summary">
+      <span class="section-label">Operations</span>
+
+      <div class="history-count">
+        <strong>
+          {{ jobs.paginator.count }}
+        </strong>
+
+        <span>
+          cleaning job{{ jobs.paginator.count|pluralize }}
+        </span>
+      </div>
+    </div>
+
+    <a
+      href="{% url 'cleaner:upload' %}"
+      class="btn btn-fix"
+    >
+      + New cleaning job
+    </a>
+
+  </div>
+
+
+  <div class="history-card">
+
+    <div class="history-header">
+
+      <div>
+        <span class="section-label">
+          Recent activity
+        </span>
+
+        <h2>Cleaning jobs</h2>
+
+        <p>
+          Your most recent cleaning operations,
+          newest first.
+        </p>
       </div>
 
-      <div class="table-wrapper">
-        <table class="history-table">
-          <thead>
+    </div>
+
+
+    <div class="table-wrapper">
+
+      <table class="history-table">
+
+        <thead>
+          <tr>
+
+            <th scope="col">
+              Dataset
+            </th>
+
+            <th scope="col">
+              Format
+            </th>
+
+            <th scope="col">
+              Rows
+            </th>
+
+            <th scope="col">
+              Issues
+            </th>
+
+            <th scope="col">
+              Removed
+            </th>
+
+            <th scope="col">
+              Status
+            </th>
+
+            <th scope="col">
+              Created
+            </th>
+
+            <th scope="col">
+              <span class="sr-only">
+                Actions
+              </span>
+            </th>
+
+          </tr>
+        </thead>
+
+
+        <tbody>
+
+          {% for job in jobs %}
+
             <tr>
-              <th scope="col">Dataset</th>
-              <th scope="col">Rows</th>
-              <th scope="col">Issues</th>
-              <th scope="col">Fixed</th>
-              <th scope="col">Removed</th>
-              <th scope="col">Status</th>
-              <th scope="col">Date</th>
-              <th scope="col"><span class="sr-only">Actions</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for job in jobs %}
-            <tr>
+
+              <!-- Dataset -->
+
               <td>
-                <div class="dataset-name">
-                  {% if job.dataset %}{{ job.dataset.name }}{% else %}Dataset #{{ job.id }}{% endif %}
+
+                <div class="dataset-cell">
+
+                  <div class="dataset-name">
+
+                    {% if job.dataset %}
+                      {{ job.dataset.name }}
+                    {% else %}
+                      Cleaning Job #{{ job.id }}
+                    {% endif %}
+
+                  </div>
+
+                  {% if job.original_file %}
+                    <span class="dataset-file">
+                      {{ job.original_file.name|cut:"uploads/" }}
+                    </span>
+                  {% endif %}
+
                 </div>
+
               </td>
-              <td>{{ job.row_count }}</td>
-              <td>{{ job.issues_found }}</td>
-              <td>{{ job.issues_fixed }}</td>
-              <td>{{ job.rows_removed }}</td>
-              <td><span class="status status-{{ job.status }}">{{ job.get_status_display }}</span></td>
+
+
+              <!-- Format -->
+
               <td>
-                <span class="date">{{ job.created_at|date:"M d, Y" }}</span>
-                <small>{{ job.created_at|date:"H:i" }}</small>
+
+                {% if job.dataset and job.dataset.file_type %}
+
+                  <span class="format-pill">
+                    {{ job.dataset.file_type|upper }}
+                  </span>
+
+                {% else %}
+
+                  <span class="muted">
+                    —
+                  </span>
+
+                {% endif %}
+
               </td>
-              <td><a href="{% url 'reports:report' job.id %}" class="view-btn">View</a></td>
+
+
+              <!-- Rows -->
+
+              <td>
+                <span class="metric">
+                  {{ job.row_count|default:"0" }}
+                </span>
+              </td>
+
+
+              <!-- Issues -->
+
+              <td>
+
+                <span class="metric">
+                  {{ job.issues_found|default:"0" }}
+                </span>
+
+              </td>
+
+
+              <!-- Removed -->
+
+              <td>
+
+                <span class="metric">
+                  {{ job.rows_removed|default:"0" }}
+                </span>
+
+              </td>
+
+
+              <!-- Status -->
+
+              <td>
+
+                <span
+                  class="status status-{{ job.status }}"
+                >
+                  {{ job.get_status_display }}
+                </span>
+
+              </td>
+
+
+              <!-- Created -->
+
+              <td>
+                <time
+                  class="date local-datetime"
+                  datetime="{{ job.created_at|date:'c' }}"
+                >
+                  {{ job.created_at|date:"M d, Y H:i" }}
+                </time>
+              </td>
+
+
+              <!-- Action -->
+
+              <td>
+
+                <a
+                  href="{% url 'reports:report' job.id %}"
+                  class="view-btn"
+                  aria-label="View report for job #{{ job.id }}"
+                >
+                  View report
+                  <span aria-hidden="true">→</span>
+                </a>
+
+              </td>
+
             </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
     </div>
 
-    {% else %}
-    <div class="empty-history">
-      <div class="empty-icon">—</div>
-      <h2>No cleaning history yet</h2>
-      <p>Once you clean a CSV file, your cleaning jobs will appear here.</p>
-      <a href="{% url 'cleaner:upload' %}" class="btn btn-fix">Clean your first file</a>
-    </div>
-    {% endif %}
+  </div>
 
-    {% if jobs.paginator.num_pages > 1 %}
-    <div class="pagination">
-      {% if jobs.has_previous %}<a href="?page={{ jobs.previous_page_number }}">Previous</a>{% endif %}
-      <span>Page {{ jobs.number }} of {{ jobs.paginator.num_pages }}</span>
-      {% if jobs.has_next %}<a href="?page={{ jobs.next_page_number }}">Next</a>{% endif %}
+
+  {% if jobs.has_other_pages %}
+
+    <nav
+      class="pagination"
+      aria-label="Cleaning history pagination"
+    >
+
+      {% if jobs.has_previous %}
+
+        <a
+          href="?page={{ jobs.previous_page_number }}"
+          class="pagination-link"
+        >
+          ← Previous
+        </a>
+
+      {% endif %}
+
+
+      <span class="pagination-current">
+        Page
+        <strong>{{ jobs.number }}</strong>
+        of
+        <strong>{{ jobs.paginator.num_pages }}</strong>
+      </span>
+
+
+      {% if jobs.has_next %}
+
+        <a
+          href="?page={{ jobs.next_page_number }}"
+          class="pagination-link"
+        >
+          Next →
+        </a>
+
+      {% endif %}
+
+    </nav>
+
+  {% endif %}
+
+
+{% else %}
+
+  <div class="empty-history">
+
+    <div
+      class="empty-icon"
+      aria-hidden="true"
+    >
+      ↗
     </div>
-    {% endif %}
+
+    <span class="eyebrow">
+      No activity
+    </span>
+
+    <h2>No cleaning history yet</h2>
+
+    <p>
+      Once you clean a dataset, your completed
+      operations will appear here with their results,
+      findings, and generated files.
+    </p>
+
+    <a
+      href="{% url 'cleaner:upload' %}"
+      class="btn btn-fix"
+    >
+      Clean your first file →
+    </a>
+
+  </div>
+
+{% endif %}
 
   </div>
 </section>
 
 {% endblock %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".local-datetime").forEach((element) => {
+    const timestamp = element.getAttribute("datetime");
+
+    if (!timestamp) {
+      return;
+    }
+
+    const date = new Date(timestamp);
+
+    if (Number.isNaN(date.getTime())) {
+      return;
+    }
+
+    element.textContent = new Intl.DateTimeFormat(
+      undefined,
+      {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }
+    ).format(date);
+  });
+});
+</script>

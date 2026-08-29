@@ -3,45 +3,198 @@
 
 {% block title %}Scan Results — DataPilot{% endblock %}
 {% block nav_upload %}active{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/cleaner.css' %}">{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cleaner.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <div class="page-head">
   <div class="wrap">
+
     <span class="eyebrow">Step 2 of 3</span>
-    <h1>Scan Results</h1>
-    <p>DataPilot analyzed your file. Nothing has been changed yet — review what was found, then run the clean.</p>
+
+    <h1>Scan results</h1>
+
+    <p>
+      DataPilot analyzed your dataset without changing the original file.
+      Review the findings below before starting the cleaning process.
+    </p>
+
   </div>
 </div>
 
-<section class="upload-section">
+
+<section class="results-summary">
   <div class="wrap">
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span>Rows</span>
-        <strong>{{ rows }}</strong>
+    <!-- ================================================================
+         DATASET INFORMATION
+         ================================================================ -->
+
+    <div class="scan-file card">
+
+      <div class="scan-file-main">
+
+        <span class="scan-file-label">
+          Dataset
+        </span>
+
+        <strong class="scan-file-name">
+          {{ dataset.name }}
+        </strong>
+
       </div>
-      <div class="stat-card">
-        <span>Columns</span>
-        <strong>{{ columns }}</strong>
-      </div>
-      <div class="stat-card">
-        <span>Missing values</span>
-        <strong>{{ missing_values }}</strong>
-      </div>
-      <div class="stat-card">
-        <span>Duplicate rows</span>
-        <strong>{{ duplicate_rows }}</strong>
-      </div>
+
+
+      {% if detected_file %}
+
+        <div class="scan-file-format">
+
+          <span class="scan-file-label">
+            Detected format
+          </span>
+
+          <span class="pill pill-neutral">
+            {{ detected_file.format|default:"Detected" }}
+          </span>
+
+        </div>
+
+      {% endif %}
+
     </div>
 
-    <div class="upload-actions">
-      <form method="post" action="{% url 'cleaner:clean' %}">
+
+    <!-- ================================================================
+         SCAN STATISTICS
+         ================================================================ -->
+
+    <section class="scan-overview">
+
+      <div class="section-heading">
+
+        <span class="eyebrow">
+          Dataset overview
+        </span>
+
+        <h2>What DataPilot found</h2>
+
+        <p>
+          These values describe the dataset before any cleaning is applied.
+        </p>
+
+      </div>
+
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <span>Rows</span>
+          <strong>{{ rows|default:"0" }}</strong>
+        </div>
+
+
+        <div class="stat-card">
+          <span>Columns</span>
+          <strong>{{ columns|default:"0" }}</strong>
+        </div>
+
+
+        <div class="stat-card stat-card-flag">
+          <span>Missing values</span>
+          <strong>{{ missing_values|default:"0" }}</strong>
+        </div>
+
+
+        <div class="stat-card stat-card-flag">
+          <span>Duplicate rows</span>
+          <strong>{{ duplicate_rows|default:"0" }}</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================================================================
+         SCAN STATUS
+         ================================================================ -->
+
+    <section class="scan-status card">
+
+      <div class="scan-status-main">
+
+        <div class="scan-status-icon" aria-hidden="true">
+          ✓
+        </div>
+
+        <div>
+
+          <span class="scan-file-label">
+            Scan status
+          </span>
+
+          <strong>
+            Scan complete
+          </strong>
+
+          <p>
+            Your original file has not been modified.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <span class="pill pill-neutral">
+        Ready to clean
+      </span>
+
+    </section>
+
+
+    <!-- ================================================================
+         PRIMARY ACTION
+         ================================================================ -->
+
+    <div class="scan-actions">
+
+      <div class="scan-actions-copy">
+
+        <span class="eyebrow">
+          Next step
+        </span>
+
+        <strong>
+          Apply DataPilot's cleaning process
+        </strong>
+
+        <p>
+          The original upload will remain unchanged. DataPilot will create
+          cleaned output files separately.
+        </p>
+
+      </div>
+
+
+      <form
+        method="post"
+        action="{% url 'cleaner:clean' %}"
+      >
         {% csrf_token %}
-        <button type="submit" class="btn btn-fix">Clean file →</button>
+
+        <button
+          type="submit"
+          class="btn btn-fix"
+        >
+          Clean dataset →
+        </button>
+
       </form>
+
     </div>
 
   </div>

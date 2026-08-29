@@ -1,101 +1,103 @@
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}DataPilot{% endblock %}</title>
+<title>{% block title %}DataPilot{% endblock %}</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
-        rel="stylesheet"
-    >
+<link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+>
 
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
 
-    {% block extra_css %}{% endblock %}
+{% block extra_css %}{% endblock %}
+
 </head>
 
 <body>
 
-    <nav class="site-nav">
-        <div class="wrap">
+<nav class="site-nav">
+    <div class="wrap">
 
-            <a href="{% url 'dashboard:index' %}" class="brand">
-                DataPilot
-                <span class="brand-mark">CSV</span>
-            </a>
+        <a href="{% url 'dashboard:index' %}" class="brand">
+            DataPilot
+            <span class="brand-mark">DATA</span>
+        </a>
 
-            <ul class="nav-links">
-                <li>
-                    <a
-                        href="{% url 'dashboard:index' %}"
-                        class="{% block nav_home %}{% endblock %}"
-                    >
-                        Home
-                    </a>
-                </li>
+        <ul class="nav-links">
+            <li>
+                <a
+                    href="{% url 'dashboard:index' %}"
+                    class="{% block nav_home %}{% endblock %}"
+                >
+                    Home
+                </a>
+            </li>
 
-                <li>
-                    <a
-                        href="{% url 'cleaner:upload' %}"
-                        class="{% block nav_upload %}{% endblock %}"
-                    >
-                        Clean a file
-                    </a>
-                </li>
+            <li>
+                <a
+                    href="{% url 'cleaner:upload' %}"
+                    class="{% block nav_upload %}{% endblock %}"
+                >
+                    Clean a file
+                </a>
+            </li>
 
-                <li>
-                    <a
-                        href="{% url 'reports:history' %}"
-                        class="{% block nav_history %}{% endblock %}"
-                    >
-                        History
-                    </a>
-                </li>
+            <li>
+                <a
+                    href="{% url 'reports:history' %}"
+                    class="{% block nav_history %}{% endblock %}"
+                >
+                    History
+                </a>
+            </li>
+        </ul>
+
+        <a href="{% url 'cleaner:upload' %}" class="nav-cta">
+            + New upload
+        </a>
+
+    </div>
+</nav>
+
+
+<main>
+    <div class="wrap">
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">
+                        {{ message }}
+                    </li>
+                {% endfor %}
             </ul>
+        {% endif %}
 
-            <a href="{% url 'cleaner:upload' %}" class="nav-cta">
-                + New upload
-            </a>
+        {% block content %}{% endblock %}
 
-        </div>
-    </nav>
-
-
-    <main>
-        <div class="wrap">
-
-            {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                        <li class="{{ message.tags }}">
-                            {{ message }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-            {% block content %}{% endblock %}
-
-        </div>
-    </main>
+    </div>
+</main>
 
 
-    <footer class="site-footer">
-        <div class="wrap">
-            <span>DataPilot</span>
-            <span>CSV Data Cleaning &amp; Reporting</span>
-        </div>
-    </footer>
+<footer class="site-footer">
+    <div class="wrap">
+        <span>DataPilot</span>
+        <span>Data Cleaning &amp; Reporting</span>
+    </div>
+</footer>
 
 
-    {% block extra_js %}{% endblock %}
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>
