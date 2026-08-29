@@ -3,12 +3,12 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .models import CleaningJob
+from apps.datasets.models import Dataset
 
 
 class CleanerUploadTests(TestCase):
 
     def test_upload_page(self):
-
         response = self.client.get(
             reverse("cleaner:upload")
         )
@@ -19,7 +19,6 @@ class CleanerUploadTests(TestCase):
         )
 
     def test_csv_upload(self):
-
         csv_file = SimpleUploadedFile(
             "customers.csv",
             b"id,name\n1,Amani\n2,John\n",
@@ -35,7 +34,12 @@ class CleanerUploadTests(TestCase):
 
         self.assertEqual(
             response.status_code,
-            302,
+            200,
+        )
+
+        self.assertEqual(
+            Dataset.objects.count(),
+            1,
         )
 
         self.assertEqual(
@@ -43,9 +47,31 @@ class CleanerUploadTests(TestCase):
             1,
         )
 
-        job = CleaningJob.objects.first()
+        job = CleaningJob.objects.select_related("dataset").first()
+
+        self.assertIsNotNone(job)
 
         self.assertEqual(
-            job.filename,
+            job.dataset.name,
             "customers.csv",
+        )
+
+        self.assertEqual(
+            job.row_count,
+            2,
+        )
+
+        self.assertEqual(
+            job.dataset.row_count,
+            2,
+        )
+
+        self.assertEqual(
+            job.dataset.column_count,
+            2,
+        )
+
+        self.assertEqual(
+            job.status,
+            CleaningJob.Status.PENDING,
         )

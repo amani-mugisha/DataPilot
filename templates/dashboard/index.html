@@ -9,12 +9,12 @@
 <section class="hero">
   <div class="wrap">
     <div class="hero-copy">
-      <span class="eyebrow">Row-level CSV cleaning</span>
-      <h1>Your CSV has problems. It won't after this.</h1>
+      <span class="eyebrow">Row-level file cleaning</span>
+      <h1>Your file has problems. It won't after this.</h1>
       <p>Upload a file, DataPilot finds the duplicates, blanks, and broken formatting, cleans it, and shows you exactly what changed — before you download a single row.</p>
       <div class="hero-actions">
-        <a href="{% url 'cleaner:upload' %}" class="btn">Upload a CSV</a>
-        <span class="hint">.csv · up to 50MB</span>
+        <a href="{% url 'cleaner:upload' %}" class="btn">Upload a file</a>
+        <span class="hint">.file_type · up to 50MB</span>
       </div>
     </div>
 
@@ -70,7 +70,7 @@
       <div class="step-row">
         <span class="step-num">01</span>
         <span class="step-title">Upload</span>
-        <span class="step-desc">Drop in a CSV. DataPilot reads it with Pandas and profiles every column — types, nulls, duplicates, formatting drift.</span>
+        <span class="step-desc">Drop in a file. DataPilot instantly analyzes your dataset and profiles every column—detecting data types, missing values, duplicates, and formatting inconsistencies.</span>
       </div>
       <div class="step-row">
         <span class="step-num">02</span>
@@ -80,7 +80,7 @@
       <div class="step-row">
         <span class="step-num">03</span>
         <span class="step-title">Download, cleaned</span>
-        <span class="step-desc">Preview the cleaned table side-by-side with the original, then download the fixed CSV.</span>
+        <span class="step-desc">Preview the cleaned table side-by-side with the original, then download the fixed file.</span>
       </div>
     </div>
   </div>
@@ -108,8 +108,8 @@
       {% endfor %}
     {% else %}
       <div class="empty-state">
-        <p>No jobs yet. Upload your first CSV and DataPilot will start a history you can come back to.</p>
-        <a href="{% url 'cleaner:upload' %}" class="btn btn-outline">Upload a CSV</a>
+        <p>No jobs yet. Upload your first file and DataPilot will start a history you can come back to.</p>
+        <a href="{% url 'cleaner:upload' %}" class="btn btn-outline">Upload a file</a>
       </div>
     {% endif %}
   </div>

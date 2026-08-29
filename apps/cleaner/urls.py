@@ -26,6 +26,12 @@ urlpatterns = [
     ),
 
     path(
+        "download/excel/",
+        views.download_excel,
+        name="download_excel",
+    ),
+
+    path(
         "download/pdf/",
         views.download_pdf,
         name="download_pdf",

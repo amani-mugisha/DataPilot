@@ -1,272 +1,1088 @@
 /* ==========================================================================
    DataPilot — cleaner.css
-   Upload page (dropzone) and results page (findings ledger + preview table).
+   Upload page, scan results, cleaning results, findings and previews.
+   ========================================================================== */
+
+/* ==========================================================================
+   Page header
    ========================================================================== */
 
 .page-head{
   padding: var(--space-8) 0 var(--space-6);
   border-bottom: 1px solid var(--line);
 }
-.page-head .eyebrow{ margin-bottom: var(--space-3); }
-.page-head p{ max-width: 52ch; }
+
+.page-head .eyebrow{
+  margin-bottom: var(--space-3);
+}
+
+.page-head p{
+  max-width: 52ch;
+}
+
 
 /* ==========================================================================
-   Upload / dropzone
+   Upload
    ========================================================================== */
-.upload-section{ padding: var(--space-7) 0 var(--space-9); }
+
+.upload-section{
+  padding: var(--space-7) 0 var(--space-9);
+}
+
+
+/* --------------------------------------------------------------------------
+   Dropzone
+   -------------------------------------------------------------------------- */
 
 .dropzone{
   position: relative;
+
   border: 2px dashed var(--line-strong);
   border-radius: var(--radius-md);
+
   background: var(--white);
+
   padding: var(--space-9) var(--space-5);
+
   text-align: center;
+
   cursor: pointer;
-  transition: border-color .15s ease, background .15s ease;
+
+  transition:
+    border-color .15s ease,
+    background .15s ease,
+    transform .12s ease;
 }
+
 .dropzone:hover,
 .dropzone.is-dragover{
   border-color: var(--flag);
   background: var(--flag-bg);
 }
-.dropzone:focus-within{ outline: 2px solid var(--flag); outline-offset: 3px; }
+
+.dropzone:active{
+  transform: translateY(1px);
+}
+
+.dropzone:focus-visible{
+  outline: 2px solid var(--flag);
+  outline-offset: 3px;
+}
 
 .dropzone-icon{
   font-family: var(--font-mono);
   font-size: 2rem;
+
   color: var(--flag);
+
   margin-bottom: var(--space-3);
+
   line-height: 1;
 }
-.dropzone h3{ margin-bottom: var(--space-2); }
-.dropzone .dz-sub{ color: var(--ink-soft); font-size: 0.9rem; margin-bottom: var(--space-5); }
+
+.dropzone h3{
+  margin-bottom: var(--space-2);
+}
+
+.dropzone .dz-sub{
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+
+  margin-bottom: var(--space-5);
+}
+
+
+/* --------------------------------------------------------------------------
+   Hidden file input
+   -------------------------------------------------------------------------- */
+
 .dropzone input[type="file"]{
   position: absolute;
-  width: 1px; height: 1px;
+
+  width: 1px;
+  height: 1px;
+
   overflow: hidden;
+
   clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+
+  white-space: nowrap;
 }
+
+
+/* --------------------------------------------------------------------------
+   Selected filename
+   -------------------------------------------------------------------------- */
 
 .dz-filename{
   margin-top: var(--space-5);
+
   font-family: var(--font-mono);
   font-size: 0.9rem;
+
   color: var(--ink);
+
   display: none;
+
+  overflow-wrap: anywhere;
 }
-.dz-filename.is-visible{ display: block; }
-.dz-filename .pill{ margin-left: var(--space-2); }
+
+.dz-filename.is-visible{
+  display: block;
+}
+
+.dz-filename .pill{
+  margin-left: var(--space-2);
+}
+
+
+/* ==========================================================================
+   Upload rules
+   ========================================================================== */
 
 .upload-rules{
   margin-top: var(--space-6);
+
   display: flex;
   gap: var(--space-6);
+
   flex-wrap: wrap;
 }
+
 .upload-rules .rule{
   font-family: var(--font-mono);
   font-size: 0.78rem;
+
   color: var(--accent-mono);
+
   display: flex;
   align-items: center;
+
   gap: var(--space-2);
 }
 
-.upload-actions{ margin-top: var(--space-6); }
-.upload-actions .btn{ min-width: 220px; }
-.upload-actions .btn:disabled{ opacity: 0.45; cursor: not-allowed; }
+
+/* ==========================================================================
+   Upload actions
+   ========================================================================== */
+
+.upload-actions{
+  margin-top: var(--space-6);
+}
+
+.upload-actions .btn{
+  min-width: 220px;
+}
+
+.upload-actions .btn:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 
 /* ==========================================================================
    Results — summary counters
    ========================================================================== */
+
 .results-summary{
   padding: var(--space-7) 0;
   border-bottom: 1px solid var(--line);
 }
+
 .summary-grid{
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+
   gap: var(--space-5);
+
   margin-top: var(--space-5);
 }
+
 .summary-stat{
   border-left: 2px solid var(--line-strong);
+
   padding-left: var(--space-4);
 }
-.summary-stat.stat-flag{ border-left-color: var(--flag); }
-.summary-stat.stat-fix{ border-left-color: var(--fix); }
+
+.summary-stat.stat-flag{
+  border-left-color: var(--flag);
+}
+
+.summary-stat.stat-fix{
+  border-left-color: var(--fix);
+}
+
 .summary-stat .stat-num{
   font-family: var(--font-mono);
   font-size: 1.8rem;
   font-weight: 600;
+
   display: block;
 }
-.summary-stat.stat-flag .stat-num{ color: var(--flag); }
-.summary-stat.stat-fix .stat-num{ color: var(--fix); }
+
+.summary-stat.stat-flag .stat-num{
+  color: var(--flag);
+}
+
+.summary-stat.stat-fix .stat-num{
+  color: var(--fix);
+}
+
 .summary-stat .stat-label{
   font-size: 0.8rem;
+
   color: var(--ink-soft);
+
   text-transform: uppercase;
   letter-spacing: 0.05em;
+
   font-family: var(--font-mono);
 }
+
 
 /* ==========================================================================
    Findings ledger
    ========================================================================== */
-.findings{ padding: var(--space-7) 0; border-bottom: 1px solid var(--line); }
-.finding-row{
-  display: grid;
-  grid-template-columns: 130px 1fr 90px;
-  gap: var(--space-4);
-  align-items: center;
-  padding: var(--space-4) 0;
+
+.findings{
+  padding: var(--space-7) 0;
+
   border-bottom: 1px solid var(--line);
 }
-.finding-row:first-child{ border-top: 1px solid var(--line); }
-.finding-type{ font-family: var(--font-mono); font-size: 0.85rem; }
-.finding-desc{ color: var(--ink-soft); font-size: 0.9rem; }
-.finding-count{ font-family: var(--font-mono); text-align: right; font-size: 0.9rem; }
+
+.finding-row{
+  display: grid;
+
+  grid-template-columns: 130px 1fr 90px;
+
+  gap: var(--space-4);
+
+  align-items: center;
+
+  padding: var(--space-4) 0;
+
+  border-bottom: 1px solid var(--line);
+}
+
+.finding-row:first-child{
+  border-top: 1px solid var(--line);
+}
+
+.finding-type{
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.finding-desc{
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.finding-count{
+  font-family: var(--font-mono);
+
+  text-align: right;
+
+  font-size: 0.9rem;
+}
+
 
 /* ==========================================================================
-   Preview: before / after table
+   Preview
    ========================================================================== */
-.preview{ padding: var(--space-7) 0 var(--space-9); }
-.preview-head{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-5); }
+
+.preview{
+  padding: var(--space-7) 0 var(--space-9);
+}
+
+.preview-head{
+  display: flex;
+
+  justify-content: space-between;
+  align-items: baseline;
+
+  margin-bottom: var(--space-5);
+}
 
 .preview-toggle{
   display: inline-flex;
+
   border: 1px solid var(--line-strong);
+
   border-radius: var(--radius-sm);
+
   overflow: hidden;
 }
+
 .preview-toggle button{
   font-family: var(--font-mono);
   font-size: 0.8rem;
+
   padding: 7px 14px;
+
   border: none;
+
   background: var(--white);
+
   color: var(--ink-soft);
+
   cursor: pointer;
 }
-.preview-toggle button.is-active{ background: var(--ink); color: var(--paper); }
+
+.preview-toggle button.is-active{
+  background: var(--ink);
+  color: var(--paper);
+}
+
+
+/* ==========================================================================
+   Preview table
+   ========================================================================== */
 
 .preview-table-wrap{
   overflow-x: auto;
+
   border: 1px solid var(--line);
+
   border-radius: var(--radius-md);
 }
+
 table.preview-table{
   width: 100%;
+
   border-collapse: collapse;
+
   font-family: var(--font-mono);
+
   font-size: 0.85rem;
 }
+
 .preview-table th{
   text-align: left;
+
   padding: 10px 14px;
+
   background: var(--paper-dim);
+
   border-bottom: 1px solid var(--line);
+
   font-size: 0.72rem;
+
   text-transform: uppercase;
+
   letter-spacing: 0.05em;
+
   color: var(--accent-mono);
+
   white-space: nowrap;
 }
+
 .preview-table td{
   padding: 10px 14px;
+
   border-bottom: 1px solid var(--line);
+
   white-space: nowrap;
 }
-.preview-table tr:last-child td{ border-bottom: none; }
-.preview-table td.was-changed{ background: var(--fix-bg); color: var(--fix); }
-.preview-table td.was-removed{ text-decoration: line-through; color: var(--line-strong); }
+
+.preview-table tr:last-child td{
+  border-bottom: none;
+}
+
+.preview-table td.was-changed{
+  background: var(--fix-bg);
+  color: var(--fix);
+}
+
+.preview-table td.was-removed{
+  text-decoration: line-through;
+  color: var(--line-strong);
+}
+
+
+/* ==========================================================================
+   Results actions
+   ========================================================================== */
 
 .results-actions{
   display: flex;
+
   gap: var(--space-4);
+
   margin-top: var(--space-6);
 }
 
-@media (max-width: 720px){
-  .summary-grid{ grid-template-columns: repeat(2, 1fr); }
-  .finding-row{ grid-template-columns: 1fr; gap: var(--space-1); }
-  .finding-count{ text-align: left; }
-}
 
 /* ==========================================================================
-   History (reports app) — reuses .job-row from dashboard.css
+   History
    ========================================================================== */
-.history-section{ padding: var(--space-7) 0 var(--space-9); }
+
+.history-section{
+  padding: var(--space-7) 0 var(--space-9);
+}
+
 .pagination{
   display: flex;
+
   gap: var(--space-4);
+
   align-items: center;
+
   margin-top: var(--space-6);
+
   font-family: var(--font-mono);
+
   font-size: 0.85rem;
 }
-.pagination a{ color: var(--ink); text-decoration: none; }
-.pagination a:hover{ color: var(--flag); }
-.pagination .current{ color: var(--accent-mono); }
 
-.status-pending  { color: var(--accent-mono); }
-.status-processing{ color: var(--flag); }
-.status-complete { color: var(--fix); }
-.status-failed   { color: var(--flag); }
+.pagination a{
+  color: var(--ink);
+  text-decoration: none;
+}
 
-/* ==========================================================================
-   Stat cards — boxed variant used on scan-results and cleaning-complete pages
-   (distinct from .summary-stat, which is the border-left variant on results.html)
-   ========================================================================== */
-.stats-grid{
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--space-4);
-  margin-top: var(--space-5);
+.pagination a:hover{
+  color: var(--flag);
 }
-.stat-card{
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--white);
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-.stat-card span{
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+
+.pagination .current{
   color: var(--accent-mono);
 }
+
+.status-pending{
+  color: var(--accent-mono);
+}
+
+.status-processing{
+  color: var(--flag);
+}
+
+.status-complete{
+  color: var(--fix);
+}
+
+.status-failed{
+  color: var(--flag);
+}
+
+
+/* ==========================================================================
+   Stat cards
+   ========================================================================== */
+
+.stats-grid{
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(160px, 1fr));
+
+  gap: var(--space-4);
+
+  margin-top: var(--space-5);
+}
+
+.stat-card{
+  border: 1px solid var(--line);
+
+  border-radius: var(--radius-md);
+
+  background: var(--white);
+
+  padding: var(--space-4);
+
+  display: flex;
+  flex-direction: column;
+
+  gap: var(--space-2);
+}
+
+.stat-card span{
+  font-family: var(--font-mono);
+
+  font-size: 0.72rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  color: var(--accent-mono);
+}
+
 .stat-card strong{
   font-family: var(--font-mono);
+
   font-size: 1.6rem;
+
+  font-weight: 600;
+
+  color: var(--ink);
+}
+
+
+/* ==========================================================================
+   Download section
+   ========================================================================== */
+
+.download-section{
+  margin-top: var(--space-7);
+
+  padding-top: var(--space-6);
+
+  border-top: 1px solid var(--line);
+}
+
+.download-section p{
+  max-width: 52ch;
+}
+
+.download-actions{
+  display: flex;
+
+  gap: var(--space-4);
+
+  margin-top: var(--space-5);
+
+  flex-wrap: wrap;
+}
+
+.scan-file{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+
+  padding-bottom: var(--space-5);
+
+  border-bottom: 1px solid var(--line);
+}
+
+.scan-file-label{
+  display: block;
+
+  margin-bottom: var(--space-2);
+
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  color: var(--accent-mono);
+}
+
+.scan-file-name{
+  display: block;
+
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+.scan-file-format{
+  text-align: right;
+}
+
+.scan-status{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: var(--space-5);
+
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+
+  border-top: 1px solid var(--line);
+}
+
+.scan-status p{
+  margin: 0;
+
+  font-size: 0.85rem;
+
+  text-align: right;
+}
+
+@media (max-width: 560px){
+
+  .scan-file{
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .scan-file-format{
+    text-align: left;
+  }
+
+  .scan-status{
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .scan-status p{
+    text-align: left;
+  }
+}
+
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 720px){
+
+  .summary-grid{
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .finding-row{
+    grid-template-columns: 1fr;
+
+    gap: var(--space-1);
+  }
+
+  .finding-count{
+    text-align: left;
+  }
+}
+
+
+@media (max-width: 560px){
+
+  .stats-grid{
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .download-actions{
+    flex-direction: column;
+  }
+
+  .download-actions .btn{
+    width: 100%;
+  }
+
+  .upload-rules{
+    flex-direction: column;
+
+    gap: var(--space-3);
+  }
+
+  .upload-actions .btn{
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Cleaning complete — professional result state
+   ========================================================================== */
+
+.completion-banner{
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  margin-bottom: var(--space-7);
+  border: 1px solid var(--fix);
+  border-radius: var(--radius-md);
+  background: var(--fix-bg);
+}
+
+.completion-mark{
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--fix);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.completion-label{
+  display: block;
+  margin-bottom: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--fix);
+}
+
+.completion-banner strong{
+  display: block;
+  margin-bottom: var(--space-1);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--ink);
 }
 
+.completion-banner p{
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+
 /* ==========================================================================
-   Download section — cleaning-complete page
+   Result sections
    ========================================================================== */
+
+.result-block{
+  padding-bottom: var(--space-7);
+  border-bottom: 1px solid var(--line);
+}
+
+.section-heading{
+  margin-bottom: var(--space-5);
+}
+
+.section-heading .eyebrow{
+  margin-bottom: var(--space-3);
+}
+
+.section-heading h2{
+  margin-bottom: var(--space-2);
+}
+
+.section-heading p{
+  max-width: 58ch;
+  margin-bottom: 0;
+}
+
+
+/* ==========================================================================
+   Result stat cards
+   ========================================================================== */
+
+.stat-card-fix{
+  border-color: var(--fix);
+  background: var(--fix-bg);
+}
+
+.stat-card-fix strong{
+  color: var(--fix);
+}
+
+
+/* ==========================================================================
+   Download cards
+   ========================================================================== */
+
 .download-section{
+  padding-top: var(--space-7);
+}
+
+.download-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.download-card{
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--white);
+}
+
+.download-card:hover{
+  border-color: var(--line-strong);
+}
+
+.download-card-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.file-type{
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  padding: 4px 7px;
+  border-radius: var(--radius-sm);
+}
+
+.file-status{
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--fix);
+}
+
+.download-card h3{
+  margin-bottom: var(--space-2);
+}
+
+.download-card p{
+  min-height: 4.5em;
+  margin-bottom: var(--space-4);
+  font-size: 0.86rem;
+}
+
+.file-name{
+  overflow: hidden;
+  margin-bottom: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--accent-mono);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.download-card .btn{
+  margin-top: auto;
+}
+
+
+/* ==========================================================================
+   Final action
+   ========================================================================== */
+
+.result-footer{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
   margin-top: var(--space-7);
   padding-top: var(--space-6);
   border-top: 1px solid var(--line);
 }
-.download-section p{ max-width: 52ch; }
-.download-actions{
-  display: flex;
-  gap: var(--space-4);
-  margin-top: var(--space-5);
-  flex-wrap: wrap;
+
+.result-footer .eyebrow{
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.result-footer strong{
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+
+/* ==========================================================================
+   Responsive result layout
+   ========================================================================== */
+
+@media (max-width: 900px){
+  .download-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .download-card p{
+    min-height: 0;
+  }
 }
 
 @media (max-width: 560px){
-  .stats-grid{ grid-template-columns: repeat(2, 1fr); }
-  .download-actions{ flex-direction: column; }
-  .download-actions .btn{ width: 100%; }
+  .completion-banner{
+    padding: var(--space-4);
+  }
+
+  .result-footer{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .result-footer .btn{
+    width: 100%;
+  }
+}
+
+ /* ==========================================================================
+    Scan results — dataset information
+    ========================================================================== */
+
+.scan-file{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  margin-bottom: var(--space-7);
+}
+
+.scan-file-main{
+  min-width: 0;
+}
+
+.scan-file-label{
+  display: block;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-mono);
+}
+
+.scan-file-name{
+  display: block;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scan-file-format{
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+
+/* ==========================================================================
+   Scan results — overview
+   ========================================================================== */
+
+.scan-overview{
+  padding-bottom: var(--space-7);
+  border-bottom: 1px solid var(--line);
+}
+
+.scan-overview .section-heading{
+  margin-bottom: var(--space-5);
+}
+
+.stat-card-flag{
+  border-color: var(--flag);
+  background: var(--flag-bg);
+}
+
+.stat-card-flag strong{
+  color: var(--flag);
+}
+
+
+/* ==========================================================================
+   Scan status
+   ========================================================================== */
+
+.scan-status{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-top: var(--space-7);
+  padding: var(--space-5);
+}
+
+.scan-status-main{
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.scan-status-icon{
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--fix-bg);
+  color: var(--fix);
+  border: 1px solid var(--fix);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.scan-status-main strong{
+  display: block;
+  margin-bottom: var(--space-1);
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.scan-status-main p{
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+
+/* ==========================================================================
+   Scan results — primary action
+   ========================================================================== */
+
+.scan-actions{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin-top: var(--space-7);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--line);
+}
+
+.scan-actions-copy{
+  max-width: 56ch;
+}
+
+.scan-actions-copy .eyebrow{
+  margin-bottom: var(--space-2);
+}
+
+.scan-actions-copy strong{
+  display: block;
+  margin-bottom: var(--space-1);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.scan-actions-copy p{
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+
+/* ==========================================================================
+   Responsive scan results
+   ========================================================================== */
+
+@media (max-width: 720px){
+
+  .scan-file{
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .scan-file-format{
+    text-align: left;
+  }
+
+  .scan-status{
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .scan-actions{
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .scan-actions form,
+  .scan-actions .btn{
+    width: 100%;
+  }
+
 }
