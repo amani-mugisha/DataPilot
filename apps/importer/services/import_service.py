@@ -43,10 +43,7 @@ class ImportService:
 
         self._validate_registry()
 
-    # ------------------------------------------------------------------
     # Registry
-    # ------------------------------------------------------------------
-
     def _validate_registry(self) -> None:
         """
         Validate importer registry configuration.
@@ -74,10 +71,7 @@ class ImportService:
             self.validators
         )
 
-        # --------------------------------------------------------------
         # Supported formats must have validators
-        # --------------------------------------------------------------
-
         missing_validators = (
             supported_formats - validator_formats
         )
@@ -92,10 +86,7 @@ class ImportService:
                 f"{formats}"
             )
 
-        # --------------------------------------------------------------
         # Readers must have validators
-        # --------------------------------------------------------------
-
         readers_without_validators = (
             reader_formats - validator_formats
         )
@@ -110,10 +101,7 @@ class ImportService:
                 f"{formats}"
             )
 
-        # --------------------------------------------------------------
         # Readers must represent supported formats
-        # --------------------------------------------------------------
-
         unsupported_readers = (
             reader_formats - supported_formats
         )
@@ -128,10 +116,7 @@ class ImportService:
                 f"{formats}"
             )
 
-        # --------------------------------------------------------------
         # Validators must represent supported formats
-        # --------------------------------------------------------------
-
         unsupported_validators = (
             validator_formats - supported_formats
         )
@@ -146,10 +131,7 @@ class ImportService:
                 f"{formats}"
             )
 
-    # ------------------------------------------------------------------
     # Detection
-    # ------------------------------------------------------------------
-
     def detect(
         self,
         filename: str,
@@ -164,10 +146,7 @@ class ImportService:
             mime_type,
         )
 
-    # ------------------------------------------------------------------
     # Validation
-    # ------------------------------------------------------------------
-
     def validate(
         self,
         file_path: str | Path | BinaryIO,
@@ -208,10 +187,7 @@ class ImportService:
 
         return detected
 
-    # ------------------------------------------------------------------
     # Reading
-    # ------------------------------------------------------------------
-
     def read(
         self,
         file_path: str | Path | BinaryIO,
@@ -258,10 +234,7 @@ class ImportService:
             dataframe=dataframe,
         )
 
-    # ------------------------------------------------------------------
     # Metadata
-    # ------------------------------------------------------------------
-
     def supported_formats(self) -> list[str]:
         """
         Return formats that can actually be imported
@@ -272,10 +245,7 @@ class ImportService:
             self.readers.keys()
         )
 
-    # ------------------------------------------------------------------
     # Excel
-    # ------------------------------------------------------------------
-
     def list_sheets(
         self,
         file_path: str | Path | BinaryIO,
@@ -315,10 +285,7 @@ class ImportService:
             filename=filename,
         )
 
-    # ------------------------------------------------------------------
     # Helpers
-    # ------------------------------------------------------------------
-
     @staticmethod
     def _get_filename(
         file_path: str | Path | BinaryIO,

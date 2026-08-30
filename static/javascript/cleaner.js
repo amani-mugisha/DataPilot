@@ -141,9 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /*
-     * Clicking the dropzone opens the native file picker.
-     */
+    /*Clicking the dropzone opens the native file picker. */
     dropzone.addEventListener("click", (event) => {
         if (event.target === input) {
             return;
@@ -153,9 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    /*
-     * Keyboard accessibility.
-     */
+    /*Keyboard accessibility.*/
     dropzone.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
@@ -164,9 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    /*
-     * Normal file selection.
-     */
+    /*Normal file selection.*/
     input.addEventListener("change", () => {
         const file = input.files && input.files[0];
 
@@ -179,10 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    /*
-     * Drag and drop — prevent the browser from opening
-     * dropped files directly.
-     */
+    /* Drag and drop — prevent the browser from opening dropped files directly.*/
     ["dragenter", "dragover"].forEach((eventName) => {
         dropzone.addEventListener(eventName, (event) => {
             event.preventDefault();
@@ -203,9 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    /*
-     * Handle dropped files.
-     */
+    /*Handle dropped files.*/
     dropzone.addEventListener("drop", (event) => {
         const files = event.dataTransfer.files;
 
@@ -216,9 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const file = files[0];
 
-        /*
-         * Only one dataset is processed per upload.
-         */
+        /* Only one dataset is processed per upload.*/
         if (files.length > 1) {
             setFilenameMessage(
                 "Please drop one file at a time.",
@@ -228,10 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        /*
-         * Assign the dropped file to the real input so that
-         * Django receives it during form submission.
-         */
+        /*Assign the dropped file to the real input so that Django receives it during form submission.*/
         try {
             const dataTransfer = new DataTransfer();
 
@@ -275,3 +259,4 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     clearFileState();
 });
+

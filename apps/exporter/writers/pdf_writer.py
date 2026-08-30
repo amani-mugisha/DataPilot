@@ -72,10 +72,7 @@ class PDFWriter(BaseWriter):
     MUTED_TEXT = colors.HexColor("#5E6672")
     REPORT_BORDER = colors.HexColor("#D5D9DE")
 
-    # ------------------------------------------------------------------
     # Public API
-    # ------------------------------------------------------------------
-
     def write(
         self,
         dataframe: pd.DataFrame,
@@ -139,10 +136,7 @@ class PDFWriter(BaseWriter):
 
         return path
 
-    # ------------------------------------------------------------------
     # PDF construction
-    # ------------------------------------------------------------------
-
     def _build_pdf(
         self,
         *,
@@ -249,10 +243,7 @@ class PDFWriter(BaseWriter):
 
         return buffer
 
-    # ------------------------------------------------------------------
     # Header
-    # ------------------------------------------------------------------
-
     def _build_header(
         self,
         *,
@@ -502,10 +493,7 @@ class PDFWriter(BaseWriter):
 
         return elements
 
-    # ------------------------------------------------------------------
     # Dataset table
-    # ------------------------------------------------------------------
-
     def _build_table(
         self,
         dataframe: pd.DataFrame,
@@ -598,10 +586,7 @@ class PDFWriter(BaseWriter):
 
         return table
 
-    # ------------------------------------------------------------------
     # Styles
-    # ------------------------------------------------------------------
-
     def _table_header_style(self) -> ParagraphStyle:
         return ParagraphStyle(
             "DataPilotTableHeader",
@@ -670,10 +655,7 @@ class PDFWriter(BaseWriter):
             style,
         )
 
-    # ------------------------------------------------------------------
     # Table formatting
-    # ------------------------------------------------------------------
-
     def _column_widths(
         self,
         column_count: int,
@@ -777,10 +759,7 @@ class PDFWriter(BaseWriter):
             commands
         )
 
-    # ------------------------------------------------------------------
     # Footer
-    # ------------------------------------------------------------------
-
     def _build_footer(self) -> list:
         """
         Build footer flowables.
@@ -804,10 +783,7 @@ class PDFWriter(BaseWriter):
             )
         ]
 
-    # ------------------------------------------------------------------
     # Flowable safety
-    # ------------------------------------------------------------------
-
     @staticmethod
     def _append_flowables(
         target: list,
@@ -859,10 +835,7 @@ class PDFWriter(BaseWriter):
                     f"{type(flowable).__name__}."
                 )
 
-    # ------------------------------------------------------------------
     # Text safety
-    # ------------------------------------------------------------------
-
     @classmethod
     def _truncate_text(
         cls,
@@ -893,10 +866,7 @@ class PDFWriter(BaseWriter):
             .replace(">", "&gt;")
         )
 
-    # ------------------------------------------------------------------
     # Output validation
-    # ------------------------------------------------------------------
-
     @staticmethod
     def _validate_output(
         path: Path,

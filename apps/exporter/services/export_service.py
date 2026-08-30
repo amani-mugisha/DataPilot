@@ -38,10 +38,7 @@ class ExportService:
 
         self._validate_registry()
 
-    # ------------------------------------------------------------------
     # Registry
-    # ------------------------------------------------------------------
-
     def _validate_registry(self) -> None:
         """
         Validate exporter registry configuration.
@@ -92,10 +89,7 @@ class ExportService:
                     "does not declare format_name."
                 )
 
-    # ------------------------------------------------------------------
     # Metadata
-    # ------------------------------------------------------------------
-
     def supported_formats(self) -> list[str]:
         """
         Return all formats currently supported for export.
@@ -105,10 +99,7 @@ class ExportService:
             self.writers.keys()
         )
 
-    # ------------------------------------------------------------------
     # Export
-    # ------------------------------------------------------------------
-
     def export(
         self,
         dataframe: pd.DataFrame,
@@ -130,10 +121,7 @@ class ExportService:
             **kwargs,
         )
 
-    # ------------------------------------------------------------------
     # Writer lookup
-    # ------------------------------------------------------------------
-
     def get_writer(
         self,
         file_format: str,

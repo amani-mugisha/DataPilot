@@ -1,10 +1,3 @@
-/* ==========================================================================
-   DataPilot — base.css
-   Design tokens + reset + shared layout primitives.
-   Visual language: a spreadsheet ledger. Hairline rows, mono data values,
-   and a two-color diff system (flag = found issue, fix = cleaned).
-   ========================================================================== */
-
 :root{
   /* --- palette --- */
   --paper:      #F7F7F4;
@@ -113,9 +106,7 @@ code, .mono, .data-value{
   display: inline-block;
 }
 
-/* ==========================================================================
-   Nav
-   ========================================================================== */
+/*  Nav*/
 .site-nav{
   border-bottom: 1px solid var(--line);
   background: var(--paper);
@@ -183,9 +174,7 @@ code, .mono, .data-value{
 }
 .nav-cta:hover{ background: #2A2F38; }
 
-/* ==========================================================================
-   Buttons
-   ========================================================================== */
+/* Buttons*/
 .btn{
   display: inline-flex;
   align-items: center;
@@ -222,9 +211,7 @@ code, .mono, .data-value{
 
 .btn-block{ width: 100%; }
 
-/* ==========================================================================
-   Cards / ledger rows
-   ========================================================================== */
+/* Cards / ledger rows*/
 .card{
   background: var(--white);
   border: 1px solid var(--line);
@@ -255,9 +242,7 @@ code, .mono, .data-value{
 .pill-fix{ background: var(--fix-bg); color: var(--fix); }
 .pill-neutral{ background: var(--paper-dim); color: var(--ink-soft); }
 
-/* ==========================================================================
-   Footer
-   ========================================================================== */
+/* Footer */
 .site-footer{
   border-top: 1px solid var(--line);
   margin-top: var(--space-9);
@@ -272,9 +257,7 @@ code, .mono, .data-value{
   color: var(--accent-mono);
 }
 
-/* ==========================================================================
-   Django messages
-   ========================================================================== */
+/* Django messages */
 .messages{ list-style: none; margin: var(--space-5) 0 0; padding: 0; }
 .messages li{
   font-family: var(--font-mono);

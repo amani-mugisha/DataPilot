@@ -58,10 +58,7 @@ class CleaningPipeline:
         self.importer = ImportService()
         self.exporter = ExportService()
 
-    # ==================================================================
     # PUBLIC API
-    # ==================================================================
-
     def run(self) -> dict:
         """
         Execute the complete cleaning pipeline.
@@ -109,10 +106,7 @@ class CleaningPipeline:
             )
             raise
 
-    # ==================================================================
     # IMPORT
-    # ==================================================================
-
     def _load_dataframe(self) -> pd.DataFrame:
         """
         Import the original uploaded file into a DataFrame.
@@ -145,10 +139,7 @@ class CleaningPipeline:
 
         return dataframe
 
-    # ==================================================================
     # EXPORT
-    # ==================================================================
-
     def _export_results(
         self,
         dataframe: pd.DataFrame,
@@ -218,30 +209,21 @@ class CleaningPipeline:
             / pdf_filename
         )
 
-        # --------------------------------------------------------------
         # CSV
-        # --------------------------------------------------------------
-
         self.exporter.export(
             dataframe,
             csv_path,
             "csv",
         )
 
-        # --------------------------------------------------------------
         # Excel
-        # --------------------------------------------------------------
-
         self.exporter.export(
             dataframe,
             xlsx_path,
             "xlsx",
         )
 
-        # --------------------------------------------------------------
         # PDF report
-        # --------------------------------------------------------------
-
         self.exporter.export(
             dataframe,
             pdf_path,
@@ -249,10 +231,7 @@ class CleaningPipeline:
             original_filename=original_filename,
         )
 
-        # --------------------------------------------------------------
         # Verify physical outputs
-        # --------------------------------------------------------------
-
         output_paths = {
             "csv_path": csv_path,
             "xlsx_path": xlsx_path,
@@ -275,10 +254,7 @@ class CleaningPipeline:
             "pdf_path": str(pdf_path),
         }
 
-    # ==================================================================
     # OUTPUT PERSISTENCE
-    # ==================================================================
-
     def _persist_outputs(
         self,
         output_paths: dict[str, str],
@@ -341,10 +317,7 @@ class CleaningPipeline:
                 content_type=definition["content_type"],
             )
 
-    # ==================================================================
     # PROCESSING STATE
-    # ==================================================================
-
     def _mark_processing(self) -> None:
         """
         Move the job and associated dataset into processing state.
@@ -371,10 +344,7 @@ class CleaningPipeline:
                 self.job.dataset
             )
 
-    # ==================================================================
     # COMPLETION
-    # ==================================================================
-
     def _mark_complete(
         self,
         *,
@@ -481,10 +451,7 @@ class CleaningPipeline:
                 self.job.dataset
             )
 
-    # ==================================================================
     # FAILURE
-    # ==================================================================
-
     def _mark_failed(
         self,
         error_message: str,
@@ -528,10 +495,7 @@ class CleaningPipeline:
             except Exception:
                 pass
 
-    # ==================================================================
     # FINDINGS
-    # ==================================================================
-
     def _save_findings(
         self,
         findings: list[dict],

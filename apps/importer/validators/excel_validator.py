@@ -98,10 +98,7 @@ class ExcelValidator(BaseValidator):
                 f"Unsupported Excel extension: {extension}"
             )
 
-    # ------------------------------------------------------------------
     # Filename
-    # ------------------------------------------------------------------
-
     def validate_filename(
         self,
         filename: str | None,
@@ -135,10 +132,7 @@ class ExcelValidator(BaseValidator):
                 "Only Excel files are supported."
             )
 
-    # ------------------------------------------------------------------
     # Size
-    # ------------------------------------------------------------------
-
     def validate_size(
         self,
         file_size: int,
@@ -157,10 +151,7 @@ class ExcelValidator(BaseValidator):
                 "The maximum Excel file size is 50MB."
             )
 
-    # ------------------------------------------------------------------
     # OOXML validation
-    # ------------------------------------------------------------------
-
     def _validate_ooxml(
         self,
         file_path: str | Path | BinaryIO,
@@ -219,10 +210,7 @@ class ExcelValidator(BaseValidator):
                 f"Unable to validate Excel file: {exc}"
             ) from exc
 
-    # ------------------------------------------------------------------
     # XLSB validation
-    # ------------------------------------------------------------------
-
     def _validate_xlsb(
         self,
         file_path: str | Path | BinaryIO,
@@ -274,10 +262,7 @@ class ExcelValidator(BaseValidator):
                 f"Unable to validate XLSB file: {exc}"
             ) from exc
 
-    # ------------------------------------------------------------------
     # Helpers
-    # ------------------------------------------------------------------
-
     @staticmethod
     def _open_zip(
         file_path: str | Path | BinaryIO,
